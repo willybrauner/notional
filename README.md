@@ -13,7 +13,7 @@
 > Notionalize is a plugin for Obsidian, not an official product of Notion. This is a personal project by [Willy Brauner](https://willybrauner.com), inspired by Notion's ideas and the Obsidian community.
 
 > [!NOTE]
-> The features are largely developed with AI assistance: each of them has its own `AGENTS.md` file, its implementation notes written for coding agents. There is no warranty on the operation of all the features, they have only been tested during six months of daily work for my own use. The plugin is highly opinionated and developed for my own workflow, but every feature can be turned off in _Settings → Notional_.
+> The features are largely developed with AI assistance: each of them has its own `AGENTS.md` file, its implementation notes written for coding agents. There is no warranty on the operation of all the features, they have only been tested during six months of daily work for my own use. The plugin is highly opinionated and developed for my own workflow, but every feature can be turned off in _Settings → Notionalize_.
 
 ## Main features
 
