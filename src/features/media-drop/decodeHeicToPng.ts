@@ -10,7 +10,7 @@ import { Platform } from 'obsidian';
  * first rather than relying on `file.path`.
  */
 export async function decodeHeicToPng(file: File): Promise<Blob> {
-	if (Platform.isDesktopApp && process.platform === 'darwin') {
+	if (Platform.isDesktop && process.platform === 'darwin') {
 		const { execFileSync } = await import('child_process');
 		const fs = await import('fs');
 		const os = await import('os');
