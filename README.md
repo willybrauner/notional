@@ -155,6 +155,8 @@ Notionalize needs Obsidian 1.10.2 or later (Bases), on desktop and mobile.
 
 - **No telemetry**: Notionalize sends nothing about you or your vault anywhere.
 - **Website icons** (off by default, _Settings → Notionalize → Icons_): each domain shown, from external links and `url` properties, is sent to Google's favicon service (`https://www.google.com/s2/favicons?domain=<domain>`) to fetch its icon.
+- **HEIC images** (macOS desktop, _Settings → Notionalize → Media drop_): a dropped or pasted HEIC/HEIF image is written to the system temp folder, converted to PNG by macOS's `sips` command, then both temp files are deleted. This is the only place the plugin uses Node's file system and runs a command.
+- **Vault-wide reads**: some features go through the vault's file list, locally: select value suggestions, `@` mentions in titles (and their update when a note is renamed), folder templates, the database header and the folder-scoped bases.
 - Everything else stays in your vault: frontmatter, `.base` files, and the plugin's `data.json` (feature states, settings, icons, value colors). The side peek keeps its width in the vault's local storage.
 
 ## Development
