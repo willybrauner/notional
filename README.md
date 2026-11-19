@@ -113,7 +113,7 @@ Six optional touches of Obsidian's look, off by default.
 
 ## All features
 
-Every feature is a toggle in _Settings → Notional_, with a link to its page. Turned off, it leaves nothing behind.
+Every feature is a toggle in _Settings → Notionalize_, with a link to its page. Turned off, it leaves nothing behind.
 
 | Section       | Feature                                                                       | Default | Desktop only |
 | ------------- | ----------------------------------------------------------------------------- | ------- | ------------ |
@@ -149,7 +149,7 @@ Notionalize needs Obsidian 1.10.2 or later (Bases), on desktop and mobile.
 1. Download `main.js`, `manifest.json` and `styles.css` from the [latest release](https://github.com/willybrauner/notionalize/releases/latest).
 2. Put them in `<your vault>/.obsidian/plugins/notionalize/`.
 3. In _Settings → Community plugins_, turn on **Notionalize**.
-4. In _Settings → Notional_, keep what you like.
+4. In _Settings → Notionalize_, keep what you like.
 
 ## Privacy & network
 
@@ -166,7 +166,7 @@ pnpm build      # production build into dist/
 pnpm verify     # lint, unit tests, build, end-to-end tests
 ```
 
-Set `NOTIONAL_PLUGIN_DIR` (environment, or `.env.local`) to a vault's `.obsidian/plugins/notionalize` folder to copy each build there.
+Set `NOTIONALIZE_PLUGIN_DIR` (environment, or `.env.local`) to a vault's `.obsidian/plugins/notionalize` folder to copy each build there.
 
 - [Architecture](docs/architecture.md): features, the scoped plugin, the feature manager, `data.json` and its migrations, services, adding a feature.
 - [Testing](docs/testing.md): unit, end-to-end (a real, isolated Obsidian) and manual checks.
