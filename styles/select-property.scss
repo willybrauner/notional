@@ -1,0 +1,405 @@
+@use 'sass:map';
+@use './variables' as *;
+@use './mixins' as *;
+@use './notion-colors' as *;
+
+@mixin chip {
+	border-radius: 5px;
+	padding: 2px 6px;
+	font-size: 90%;
+	font-weight: 500;
+	line-height: 1.2;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	max-width: 100%;
+}
+
+// ─── Standalone tag chip (used in dropdown options and inline value chips) ─────
+
+.notional-tag {
+	@include chip;
+	// inline-block (not flex): text-overflow only applies to a block's own text
+	display: inline-block;
+	vertical-align: middle;
+	min-width: 0;
+}
+
+// Variables of styles/_notion-colors.scss, switched by the theme
+@each $name in map.keys($notion-light) {
+	.notional-tag--#{$name} {
+		background-color: var(--notional-#{$name}-bg);
+		color: var(--notional-#{$name}-text);
+	}
+}
+
+// ─── Select Cell ──────────────────────────────────────────────────────────────
+
+.notional-select-cell {
+	cursor: pointer;
+
+	[contenteditable] {
+		pointer-events: none;
+		user-select: none;
+		cursor: pointer;
+	}
+
+	.longtext-color-button {
+		pointer-events: auto;
+		cursor: pointer;
+	}
+
+	&.is-editing {
+		[contenteditable] {
+			pointer-events: auto;
+			user-select: text;
+			cursor: text;
+		}
+	}
+}
+
+// Hide contenteditable when chip is injected (chip handles the visual)
+.notional-select-cell:not(.is-editing):has(.notional-value-chip) [contenteditable] {
+	display: none;
+}
+
+// Hide chip in editing mode so the contenteditable is visible
+.notional-select-cell.is-editing .notional-value-chip {
+	display: none;
+}
+
+// Hide list-bullet when the chip is shown (list view)
+.notional-select-cell:not(.is-editing):has(.notional-value-chip) .list-bullet {
+	display: none;
+}
+
+// ─── Property value chips (select + status) ───────────────────────────────────
+// Notion metrics of a value in a property (measured on Notion): 20px high,
+// 14px regular text. Applied where data-notional-prop is set by TS: base cells,
+// list/card values, note properties, board, dropdown
+@mixin property-chip {
+	box-sizing: border-box;
+	height: 20px;
+	line-height: 20px;
+	font-size: 14px;
+	font-weight: 400;
+}
+
+// Select: 6px | text | 6px, 3px radius
+@mixin select-chip-modifier {
+	@include property-chip;
+	border-radius: 4px;
+	padding: 0 6px;
+}
+
+// Status: pill, 7px | dot 8px + 5px | text | 9px
+@mixin status-chip-modifier {
+	@include property-chip;
+	border-radius: 10px;
+	padding: 0 9px 0 7px;
+
+	&::before {
+		content: '';
+		display: inline-block;
+		vertical-align: 1px;
+		margin-right: 5px;
+		width: 8px;
+		height: 8px;
+		border-radius: 50%;
+		background-color: currentColor;
+		opacity: 0.3;
+		flex-shrink: 0;
+	}
+}
+
+// Table view + note properties panel (data-notional-prop on parent, chip is child).
+// Status after select: same specificity, the status rule wins
+[data-notional-prop] .notional-value-chip {
+	@include select-chip-modifier;
+}
+
+[data-notional-prop="status"] .notional-value-chip {
+	@include status-chip-modifier;
+}
+
+// Hide native rendered value in list/card view when chip is injected
+.notional-select-cell:not(.is-editing):has(.notional-value-chip) .bases-rendered-value {
+	display: none;
+}
+
+// Select dropdown options
+.notional-select-dropdown .notional-tag,
+.notional-select-bottom-sheet .notional-tag {
+	@include select-chip-modifier;
+}
+
+.notional-select-dropdown[data-notional-prop="status"] .notional-tag,
+.notional-select-bottom-sheet[data-notional-prop="status"] .notional-tag {
+	@include status-chip-modifier;
+}
+
+
+.longtext-color-button {
+	@include feature(select-property) {
+		display: none!important;
+	}
+}
+
+// ─── Note Property ────────────────────────────────────────────────────────────
+
+.notional-select-note-property {
+	.metadata-property-value [contenteditable] {
+		pointer-events: none;
+		user-select: none;
+		cursor: pointer;
+	}
+
+	&.is-editing .metadata-property-value [contenteditable] {
+		pointer-events: auto;
+		user-select: text;
+		cursor: text;
+	}
+}
+
+// Hide contenteditable when chip is injected (unless editing)
+.notional-select-note-property:not(.is-editing):has(.notional-value-chip) .metadata-property-value [contenteditable] {
+	display: none !important;
+}
+
+// Hide chip in editing mode so the contenteditable is visible
+.notional-select-note-property.is-editing .notional-value-chip {
+	display: none;
+}
+
+// ─── Dropdown ─────────────────────────────────────────────────────────────────
+
+.notional-select-dropdown {
+	background-color: var(--background-primary);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--radius-m);
+	box-shadow: var(--shadow-l);
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	min-width: 220px;
+	max-width: 320px;
+	padding: 6px;
+	overflow: hidden;
+	opacity: 0;
+	transition: opacity 0.1s ease;
+	// Reset popover default styles
+	margin: 0;
+	border: 1px solid var(--background-modifier-border);
+}
+
+.notional-select-input {
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--radius-s);
+	background: var(--background-modifier-form-field);
+	color: var(--text-normal);
+	font-size: var(--font-ui-small);
+	padding: 6px 10px;
+	outline: none;
+	width: 100%;
+	box-sizing: border-box;
+
+	&::placeholder {
+		color: var(--text-faint);
+	}
+
+	&:focus {
+		border-color: var(--interactive-accent);
+		box-shadow: 0 0 0 2px rgba(var(--interactive-accent-rgb), 0.15);
+	}
+}
+
+.notional-select-list {
+	display: flex;
+	flex-direction: column;
+	gap: 1px;
+	max-height: 240px;
+	overflow-y: auto;
+}
+
+.notional-select-option {
+	padding: 4px 8px;
+	border-radius: var(--radius-s);
+	cursor: pointer;
+	font-size: var(--font-ui-small);
+	color: var(--text-normal);
+	white-space: nowrap;
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap; // allows color palette to wrap to a second row
+	min-width: 0;
+
+	// Chip inside option: fit content, truncate if too long
+	.notional-tag {
+		flex: 0 1 auto;
+		min-width: 0;
+	}
+
+	&:hover {
+		background-color: var(--background-modifier-hover);
+	}
+
+	&.is-create {
+		color: var(--text-muted);
+		font-style: italic;
+	}
+
+	&.is-clear {
+		color: var(--text-faint);
+		border-bottom: 1px solid var(--background-modifier-border);
+		margin-bottom: 3px;
+		padding-bottom: 7px;
+
+		&::before {
+			content: '✕';
+			margin-right: 6px;
+			font-size: 0.8em;
+		}
+	}
+}
+
+// Right-side container (color btn + check)
+.notional-option-right {
+	margin-left: auto;
+	padding-left: 10px;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	flex-shrink: 0;
+}
+
+.notional-check {
+	opacity: 0.6;
+	color: var(--text-muted);
+	font-size: 0.85em;
+}
+
+// Small colored circle to trigger the palette
+.notional-color-btn {
+	width: 14px;
+	height: 14px;
+	border-radius: 50%;
+	cursor: pointer;
+	flex-shrink: 0;
+	border: 1.5px solid rgba(0, 0, 0, 0.12);
+	opacity: 0.7;
+	transition: opacity 0.12s;
+
+	.notional-select-option:hover & {
+		opacity: 1;
+	}
+}
+
+// Bottom sheet: color btn always visible + 48×48px invisible tap zone via ::after
+.notional-select-bottom-sheet .notional-color-btn {
+	opacity: 1;
+	width: 20px;
+	height: 20px;
+	position: relative;
+
+	&::after {
+		content: '';
+		position: absolute;
+		inset: -14px; // expands touch area to 48×48px without affecting layout
+	}
+}
+
+// Inline swatch row (mobile bottom sheet)
+.notional-option-main-row {
+	display: flex;
+	align-items: center;
+	width: 100%;
+}
+
+.notional-inline-swatch-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	padding: 10px 0 4px;
+
+	.notional-color-swatch {
+		width: 28px;
+		height: 28px;
+	}
+}
+
+.theme-dark .notional-color-btn {
+	border-color: rgba(255, 255, 255, 0.15);
+}
+
+// Color palette popup (fixed positioned, shown on color-btn click)
+.notional-color-palette-popup {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 5px;
+	padding: 8px;
+	background-color: var(--background-primary);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--radius-m);
+	box-shadow: var(--shadow-l);
+	max-width: 160px;
+}
+
+// Individual color swatches
+.notional-color-swatch {
+	width: 18px;
+	height: 18px;
+	border-radius: 50%;
+	cursor: pointer;
+	flex-shrink: 0;
+	border: 2px solid transparent;
+	transition: border-color 0.1s, transform 0.1s;
+
+	&:hover {
+		transform: scale(1.15);
+	}
+
+	&.is-active {
+		border-color: var(--text-muted);
+	}
+
+	// "No color" swatch
+	&.notional-color-swatch--none {
+		position: relative;
+		border:none;
+		background: linear-gradient(135deg, var(--text-muted) 50%, transparent 50%);
+	
+	}
+}
+
+// Background-only classes for color btn + swatches (no chip typography)
+@each $name in map.keys($notion-light) {
+	.notional-swatch--#{$name} {
+		background-color: var(--notional-#{$name}-bg);
+	}
+}
+
+// ─── Bottom sheet / backdrop animation states ────────────────────────────────
+
+.notional-select-dropdown {
+	&.is-visible { opacity: 1; }
+}
+
+.notional-modal-backdrop {
+	background-color: rgba(0, 0, 0, 0.4);
+	opacity: 0;
+	transition: opacity 0.25s ease;
+
+	&.is-visible { opacity: 0.4; }
+	&.no-transition { transition: none; }
+}
+
+.notional-select-bottom-sheet {
+	height: 60vh;
+	border-radius: 16px 16px 0 0;
+	transform: translateY(100%);
+	transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1), height 0.25s ease, border-radius 0.25s ease;
+
+	&.is-visible { transform: translateY(0); }
+	&.is-expanded { height: 90vh; border-radius: 0; }
+	&.no-transition { transition: none; }
+}

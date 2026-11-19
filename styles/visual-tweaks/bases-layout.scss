@@ -1,0 +1,264 @@
+// Visual tweak "Bases layout": bases aligned on the note margins, tables and lists.
+// The board and the timeline compensate its inline padding under the same class
+// (board.scss, timeline.scss).
+
+@use '../variables' as *;
+@use '../mixins' as *;
+
+// Base row height. On body.theme-* to outrank Obsidian's .theme-light / .theme-dark (30px rows)
+body.theme-light:where(.notional-feature-tweak-bases-layout),
+body.theme-dark:where(.notional-feature-tweak-bases-layout) {
+  --bases-table-row-height: 38px;
+}
+
+// Dark mode tables
+body.theme-dark:where(.notional-feature-tweak-bases-layout) {
+  --table-border-color: rgb(43, 43, 43) !important;
+  --table-border-width: 1px;
+  --table-header-background: #2d2d2d;
+  --table-header-color: #e0e0e0;
+  --table-text-color: #d0d0d0;
+}
+
+:where(body.notional-feature-tweak-bases-layout) {
+  // ---------------------------------------------- HEADER
+
+  .bases-header {
+    --bases-header-padding-start: 0;
+    --bases-header-padding-end: 0;
+    border: none;
+    margin-inline: $padding-inline-mobile;
+
+    @include desktop {
+      margin-inline: $padding-inline-desktop;
+      margin-block: 0ch 2ch;
+    }
+  }
+
+  // Not inside an embedded base
+  .bases-embed .bases-header {
+    --bases-header-padding-start: revert;
+    --bases-header-padding-end: revert;
+    border: revert;
+    margin-inline: revert;
+  }
+
+  // Search row (toolbar "Search"): same insets as the header, aligned with the title
+  .bases-search-row {
+    margin-inline: $padding-inline-mobile;
+    padding-inline: 0;
+
+    @include desktop {
+      margin-inline: $padding-inline-desktop;
+    }
+  }
+
+  .bases-embed .bases-search-row {
+    margin-inline: revert;
+    padding-inline: revert;
+  }
+
+  // ---------------------------------------------- VIEW
+
+  .bases-view {
+    margin-inline: 0;
+    padding-inline: $padding-inline-mobile;
+
+    @include desktop {
+      padding-inline: $padding-inline-desktop;
+    }
+  }
+
+  // ---------------------------------------------- TABLE
+
+  .bases-td {
+    box-shadow: none !important;
+  }
+
+  .bases-table-cell {
+    font-size: 16px;
+    --metadata-input-font-size: 16px;
+
+    @include desktop {
+      font-size: 14.5px;
+      --metadata-input-font-size: 14.5px;
+    }
+
+    & .internal-link {
+      text-decoration: none !important;
+    }
+  }
+
+  // Grouped table: no grey band behind the headings and the gaps between groups
+  // (the container background showed through, making each band heading + gap tall)
+  .bases-table-container {
+    --bases-table-group-background: transparent;
+  }
+
+  .bases-table .bases-group-heading {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    // reset the list heading padding: the table heading has a fixed row height
+    padding-block: 0;
+    padding-inline-start: 0;
+    box-shadow: inset 0 -1px 0 var(--table-border-color);
+
+    & .bases-group-property {
+      color: var(--text-faint);
+      font-size: var(--font-ui-small);
+    }
+
+    & .bases-group-value {
+      color: var(--text-normal);
+      font-weight: 600;
+      font-size: var(--font-ui-small);
+    }
+  }
+
+  // ---------------------------------------------- LIST
+  // Notion layout, the properties without separators:
+  // - "Indent properties" off: one line, the title then the properties, right
+  //   aligned, the ones without room hidden.
+  // - on: the properties on one line below the title, aligned on its text.
+  // Bases measures each row before select-property swaps values for chips: the
+  // lines have a fixed height and never wrap, so the measured height stays
+  // right (no row overlapping the next one).
+
+  .bases-list-container {
+    --bases-list-title-font-size: 16px;
+    --bases-list-property-font-size: 14px;
+    --bases-list-line-height: 24px;
+    --bases-list-title-min-width: 50%;
+    margin-block: 0px 52px;
+
+    @include desktop {
+      --bases-list-title-font-size: 14.5px;
+      --bases-list-title-min-width: 30%;
+      margin-block: unset;
+    }
+  }
+
+  .bases-group-heading {
+    padding-block: 14px;
+
+    @include desktop {
+      padding-block: unset;
+    }
+  }
+
+  .bases-list-item {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 2px 12px;
+    width: 100%;
+    margin-inline-start: 0;
+    padding: 8px;
+    background: transparent;
+
+    @include desktop {
+      padding: 6px 8px;
+    }
+
+    // where the title text starts: after its icon (icons.scss, 20px + 3px)
+    &:has(.notional-icon-inline) {
+      --bases-list-indent: 23px;
+    }
+
+    @media (hover:hover) {
+      &:hover {
+        background: var(--bases-list-item-hover-background) !important;
+      }
+    }
+  }
+
+  // One line: the properties that don't fit wrap out of sight, never cut
+  .bases-list-item .bases-list-item-properties {
+    display: flex !important;
+    flex: 1 1 0;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0 12px;
+    min-width: 0;
+    max-height: var(--bases-list-line-height);
+    overflow: hidden;
+  }
+
+  // Indented: the properties on a line of their own
+  .bases-list-item .bases-list-item-properties.nested {
+    flex-basis: 100%;
+    padding-inline-start: var(--bases-list-indent, 0px) !important;
+
+    // native indentation guide
+    &::before {
+      display: none;
+    }
+  }
+
+  .bases-list-item .bases-list-separator,
+  .bases-list-item .list-bullet {
+    display: none !important;
+  }
+
+  .bases-list-item .bases-list-property {
+    display: inline-flex !important;
+    flex: none;
+    align-items: center;
+    min-width: 0;
+    height: var(--bases-list-line-height);
+    font-size: var(--bases-list-property-font-size);
+    color: var(--text-muted);
+
+    & .bases-rendered-value {
+      font-size: inherit;
+    }
+
+    & .bases-rendered-value[data-property-type="text"] {
+      padding: 0;
+    }
+  }
+
+  // The title: the remaining width, never less than its minimum
+  .bases-list-item .bases-list-item-properties:not(.nested) > .bases-list-property:first-child {
+    flex: 1 1 0;
+    min-width: var(--bases-list-title-min-width);
+    font-size: var(--bases-list-title-font-size);
+    color: var(--text-normal);
+
+    & > .bases-rendered-value {
+      min-width: 0;
+      overflow: hidden;
+    }
+  }
+
+  .bases-list-item .internal-link {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    max-width: 100%;
+    min-width: 0;
+    overflow: hidden;
+    font-size: inherit;
+    text-decoration: none;
+  }
+
+  // span.internal-link-text is generated by icons.ts when icon is inject in internal link
+  .bases-list-item .internal-link .internal-link-text {
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .bases-rendered-value[data-property-type="text"] {
+    padding: 2px 8px;
+  }
+
+  // ---------------------------------------------- CARDS
+
+  // hide cards label
+  .bases-cards-label {
+    display: none;
+  }
+}

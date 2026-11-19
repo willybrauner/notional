@@ -1,0 +1,21 @@
+// Opinionated adjustments of the native UI, each behind its own toggle. First:
+// the features' rules come after them, as when they were one theme
+@use './visual-tweaks/accent';
+@use './visual-tweaks/dark-background';
+@use './visual-tweaks/typography';
+@use './visual-tweaks/tabs';
+@use './visual-tweaks/properties';
+@use './visual-tweaks/bases-layout';
+@use './notional-db-header';
+@use './inline-note-rename';
+@use './select-property';
+@use './reskin-search';
+@use './icons';
+@use './entries';
+@use './timeline';
+@use './board';
+@use './tag-colors';
+@use './side-peek';
+@use './breadcrumb-nav';
+@use './title-mention';
+@use './settings';

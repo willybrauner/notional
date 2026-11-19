@@ -1,0 +1,144 @@
+// Side peek: a real workspace tab group (split) pulled out of the layout as a
+// fixed right panel over an overlay (desktop app only).
+
+// Default width, until resized (then set inline as --notional-side-peek-width)
+$side-peek-width: clamp(420px, 60vw, 1000px);
+// Max width, even with a saved width. Also the resize bounds (attachResizeHandle.ts
+// reads the computed min-width / max-width): change them here only
+$side-peek-max-width: 60vw;
+$side-peek-in: 200ms;
+$side-peek-out: 150ms;
+
+.workspace-tabs.notional-side-peek {
+	position: fixed;
+	inset: 0 0 0 auto;
+	z-index: calc(var(--layer-popover) - 1);
+	width: var(--notional-side-peek-width, #{$side-peek-width});
+	min-width: min(320px, #{$side-peek-max-width});
+	max-width: $side-peek-max-width;
+	background-color: var(--background-primary);
+	// --side-peek-border-color lets a theme tune it, the table border otherwise
+	border-left: var(--border-width) solid var(--side-peek-border-color, var(--table-border-color));
+	box-shadow: var(--shadow-l);
+	// Window drag regions underneath would otherwise steal clicks (frameless macOS)
+	-webkit-app-region: no-drag;
+	animation: notional-side-peek-in $side-peek-in var(--anim-motion-swing) both;
+
+	&.is-closing {
+		pointer-events: none;
+		animation: notional-side-peek-out $side-peek-out var(--anim-motion-smooth) both;
+	}
+
+	// Restored after a reload: already open, no slide-in
+	&.is-restored:not(.is-closing) {
+		animation: none;
+	}
+
+	// Left border drag handle
+	> .notional-side-peek-resize-handle {
+		position: absolute;
+		inset: 0 auto 0 -4px;
+		z-index: 1;
+		width: 8px;
+		cursor: col-resize;
+
+		&::after {
+			content: '';
+			position: absolute;
+			inset: 0 auto 0 3px;
+			width: 2px;
+			background-color: var(--interactive-accent);
+			opacity: 0;
+			transition: opacity 120ms ease;
+		}
+
+		&:hover::after {
+			opacity: 1;
+			transition-delay: 150ms;
+		}
+	}
+
+	// Close (>>) and Open as full page, before the back/forward buttons
+	.notional-side-peek-header-buttons {
+		display: flex;
+		align-items: center;
+		gap: var(--size-2-1);
+		margin-right: var(--size-4-2);
+	}
+
+	// Single tab: the view header (nav, title, actions) is enough
+	> .workspace-tab-header-container,
+	> .workspace-leaf-resize-handle {
+		display: none;
+	}
+}
+
+// While dragging the handle: keep the cursor and avoid selecting text
+body.notional-side-peek-is-resizing {
+	cursor: col-resize;
+	user-select: none;
+
+	.notional-side-peek-resize-handle::after {
+		opacity: 1;
+	}
+}
+
+// The split resize handle left on the page behind
+.workspace-split:has(> .notional-side-peek) > .workspace-tabs > .workspace-leaf-resize-handle {
+	display: none;
+}
+
+.notional-side-peek-overlay {
+	position: fixed;
+	inset: 0;
+	z-index: calc(var(--layer-popover) - 2);
+	background-color: rgba(0, 0, 0, 0.15);
+	-webkit-app-region: no-drag;
+	animation: notional-side-peek-fade-in $side-peek-in ease-out both;
+	pointer-events: none;
+
+	.theme-dark & {
+		background-color: rgba(0, 0, 0, 0.25);
+	}
+
+	&.is-closing {
+		pointer-events: none;
+		animation: notional-side-peek-fade-out $side-peek-out ease-in both;
+	}
+
+	&.is-restored:not(.is-closing) {
+		animation: none;
+	}
+}
+
+// Native new item popover: replaced by the side peek
+.hover-popover.notional-side-peek-hidden-native {
+	display: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.workspace-tabs.notional-side-peek,
+	.notional-side-peek-overlay {
+		animation: none !important;
+	}
+}
+
+@keyframes notional-side-peek-in {
+	from { transform: translateX(100%); }
+	to { transform: translateX(0); }
+}
+
+@keyframes notional-side-peek-out {
+	from { transform: translateX(0); }
+	to { transform: translateX(100%); }
+}
+
+@keyframes notional-side-peek-fade-in {
+	from { opacity: 0; }
+	to { opacity: 1; }
+}
+
+@keyframes notional-side-peek-fade-out {
+	from { opacity: 1; }
+	to { opacity: 0; }
+}

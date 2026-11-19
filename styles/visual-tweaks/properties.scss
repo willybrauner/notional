@@ -1,0 +1,46 @@
+// Visual tweak "Plain properties": the Properties panel of a note.
+
+@use '../mixins' as *;
+
+:where(body.notional-feature-tweak-properties) {
+  // Pills (tags, lists) use line-height: 1 + overflow: hidden, which clips descenders (g, p, y).
+  // Extend the clip box vertically without changing the pill size.
+  .multi-select-pill-content {
+    padding-block: 0.2em;
+    margin-block: -0.2em;
+  }
+
+  .metadata-properties-heading {
+    font-size: var(--font-ui-small);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .metadata-container {
+    margin-block-end: 0px;
+
+    @include desktop {
+      margin-block-end: 2rem;
+    }
+  }
+
+  .metadata-content {
+    background: var(--background-primary) !important;
+  }
+
+  // Date
+  [data-property-type="date"] .metadata-input-text.mod-date {
+    font: inherit;
+    border: none;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    color: inherit;
+  }
+
+  // No placeholder in empty text properties
+  .metadata-input-longtext:empty:before {
+    display: none;
+  }
+}

@@ -1,0 +1,39 @@
+# vscode
+.vscode
+
+# Intellij
+*.iml
+.idea
+
+# npm
+node_modules
+
+# Don't include the compiled main.js file in the repo.
+# They should be uploaded to GitHub releases instead.
+main.js
+
+# Exclude sourcemaps
+*.map
+
+# obsidian
+data.json
+
+# Exclude macOS Finder (System Explorer) View States
+.DS_Store
+
+
+/dist
+# local env (NOTIONAL_PLUGIN_DIR)
+.env.local
+
+# test reports
+.vitest
+
+# e2e: Obsidian test profile and last run (vault copy, failure screenshots)
+test/e2e/.cache
+test/e2e/.run
+
+# vault:check backups of data.json
+.cache
+
+

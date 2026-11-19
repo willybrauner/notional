@@ -1,0 +1,12 @@
+// Visual tweak "Darker dark mode": near black surfaces in dark mode.
+
+body.theme-dark:where(.notional-feature-tweak-dark-background) {
+  --background-primary: rgb(20, 20, 20);
+  --background-secondary: rgb(20, 20, 20);
+  --table-background: rgb(20, 20, 20);
+  // Top tab bar + titlebar when the window is focused (defaults to --background-secondary-alt)
+  --titlebar-background-focused: rgb(30, 30, 30);
+  --table-row-background-hover: #252525;
+  --table-row-alt-background: #222;
+  --bases-list-item-hover-background: #252525;
+}

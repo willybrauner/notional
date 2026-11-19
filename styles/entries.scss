@@ -1,0 +1,20 @@
+// =============================================================================
+// ENTRIES - Selection and deletion shared by the note views (timeline, board)
+// =============================================================================
+
+// Rubber-band selection rectangle
+.notional-marquee {
+	position: absolute;
+	z-index: 7;
+	border: 1px solid var(--interactive-accent);
+	border-radius: 2px;
+	background: color-mix(in srgb, transparent, var(--interactive-accent) 12%);
+	pointer-events: none;
+}
+
+// Notes listed in the delete confirmation
+.notional-confirm-list {
+	margin: 0 0 var(--size-4-4);
+	padding-left: var(--size-4-5);
+	color: var(--text-muted);
+}

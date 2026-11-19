@@ -1,0 +1,21 @@
+// Visual tweak "Grey accent": a grey accent instead of Obsidian's violet.
+// On body.theme-* to outrank Obsidian's .theme-light / .theme-dark; :where keeps
+// that specificity. The "Accent color" setting still wins: Obsidian writes it
+// inline on body.
+
+body.theme-light:where(.notional-feature-tweak-accent),
+body.theme-dark:where(.notional-feature-tweak-accent) {
+  --accent-h: 0;
+  --accent-s: 0%;
+  --color-accent: hsl(var(--accent-h), var(--accent-s), var(--accent-l));
+}
+
+body.theme-light:where(.notional-feature-tweak-accent) {
+  --accent-l: 30%;
+}
+
+// Lighter accent in dark mode
+body.theme-dark:where(.notional-feature-tweak-accent) {
+  --accent-l: 70%;
+  --interactive-accent: color-mix(in srgb, var(--color-accent) 50%, transparent);
+}

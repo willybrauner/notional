@@ -1,0 +1,114 @@
+// Visual tweak "Note typography": titles, headings, links, note margins, code blocks.
+
+@use '../mixins' as *;
+
+$on: ':where(body.notional-feature-tweak-typography)';
+
+// Desktop only: the mobile values written next to these never applied (a BOM in
+// front of styles.css broke the first rule of the old theme)
+@include desktop {
+  body:where(.notional-feature-tweak-typography) {
+    --nav-item-size: 14px;
+    --file-margins: 110px 32px 32px 32px;
+    --inline-title-size: 40px;
+  }
+}
+
+body.theme-dark:where(.notional-feature-tweak-typography) {
+  --link-external-color: var(--color-accent);
+  --link-color-hover: #FFF;
+  --tag-background: rgba(102, 228, 222, 0.18);
+  --tag-color: rgb(82, 183, 179);
+}
+
+body:where(.notional-feature-tweak-typography) hr {
+  border-top: 1px solid var(--table-border-color);
+}
+
+// -------------------------------------------------------------------------------------- TITLE
+
+#{$on} {
+  .cm-header.cm-header-2 {
+    font-weight: 600;
+    font-size: 23px !important;
+  }
+
+  .cm-header.cm-header-3 {
+    font-weight: 600;
+    font-size: 20px !important;
+  }
+
+  .cm-header.cm-header-4 {
+    font-weight: 400;
+    font-size: 18px !important;
+    text-decoration: underline;
+  }
+
+  .cm-link,
+  .cm-url,
+  .external-link {
+    text-decoration-line: var(--link-external-decoration);
+    text-decoration-color: var(--link-external-decoration-color);
+    text-decoration-thickness: var(--link-decoration-thickness);
+    text-underline-offset: var(--link-underline-offset, 3px);
+  }
+
+  // Edit mode: the trailing external-link icon is the collapsed "(url)" CM formatting span itself,
+  // not a ::after pseudo-element — add 2px on top of Obsidian's own spacing before it.
+  .cm-formatting-link-string.external-link {
+    margin-left: 2px;
+  }
+
+  // ------------------------------------------------------------------------------------- LINKS
+
+  // Same underline in edit mode (.cm-hmd-internal-link) and viewer mode (.internal-link).
+  // `.markdown-rendered .internal-link` is needed to override Obsidian's
+  // `text-decoration-line: var(--link-decoration)`, which is `none` in this theme.
+  // Keep .internal-link inline: an inline-flex box takes its baseline from the injected icon,
+  // which lifts the text above the surrounding line and prevents wrapping.
+  .cm-hmd-internal-link,
+  .internal-link,
+  .markdown-rendered .internal-link {
+    font-weight: 500 !important;
+    text-decoration: underline;
+    text-decoration-color: rgb(236, 236, 236);
+    text-decoration-thickness: var(--link-decoration-thickness);
+    text-underline-offset: 3.5px;
+  }
+
+  // Edit mode: CodeMirror wraps the link text in .cm-underline, which draws a second underline in
+  // the text color over the link's own (thicker and lighter on headings). Reading mode has only one.
+  // Prefixed like Obsidian's `.markdown-source-view.mod-cm6 .cm-underline` to outrank it.
+  .markdown-source-view.mod-cm6 .cm-hmd-internal-link .cm-underline {
+    text-decoration: none;
+  }
+
+  // ------------------------------------------------------------------------------ NOTE CONTENT
+
+  .cm-contentContainer {
+    margin-top: 2ch;
+  }
+
+  .mod-header.mod-ui+* {
+    margin-top: 2ch;
+  }
+
+  // Code blocks (reading mode only): no line wrapping, scroll horizontally instead.
+  // Live Preview keeps native wrapping: CM6 lines are separate divs, so they can't scroll as one block.
+  .markdown-rendered pre code {
+    white-space: pre !important;
+  }
+
+  .markdown-rendered pre {
+    overflow-x: auto;
+  }
+}
+
+// The theme class sits on body itself, next to the tweak's
+.theme-dark:where(.notional-feature-tweak-typography) {
+  .cm-hmd-internal-link,
+  .internal-link,
+  .markdown-rendered .internal-link {
+    text-decoration-color: rgb(80, 80, 80) !important;
+  }
+}

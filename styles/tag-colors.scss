@@ -1,0 +1,69 @@
+// =============================================================================
+// TAG COLORS - Notion colors on tags (data-notion-color set by the decorator)
+// =============================================================================
+
+@use 'sass:map';
+@use './notion-colors' as *;
+
+@each $name in map.keys($notion-light) {
+	a.tag[data-notion-color='#{$name}'],
+	.multi-select-pill[data-notion-color='#{$name}'],
+	.notional-tag-chip[data-notion-color='#{$name}'] {
+		--notional-tag-rgb: var(--notional-#{$name}-rgb);
+	}
+}
+
+a.tag[data-notion-color] {
+	@include tag-look(--notional-tag-rgb);
+	border-color: transparent;
+
+	&:hover {
+		@include tag-look(--notional-tag-rgb, 0.25);
+	}
+}
+
+// Higher specificity than Obsidian's
+// `.metadata-property-value[data-property-type="tags"] .multi-select-pill`,
+// which sets the pill colors to the default tag color
+.metadata-property-value .multi-select-pill.multi-select-pill[data-notion-color] {
+	--pill-color: rgb(var(--notional-tag-rgb));
+	--pill-color-hover: rgb(var(--notional-tag-rgb));
+	--pill-color-remove: rgb(var(--notional-tag-rgb));
+	--pill-color-remove-hover: rgb(var(--notional-tag-rgb));
+	--pill-background: rgba(var(--notional-tag-rgb), 0.15);
+	--pill-background-hover: rgba(var(--notional-tag-rgb), 0.25);
+	--pill-border-color: transparent;
+	--pill-border-color-hover: transparent;
+}
+
+// Tag values rendered by the plugin (board columns and cards, timeline bars):
+// Obsidian's tag pill, in the tag color when it has one
+.notional-tag-chip {
+	display: inline-flex;
+	align-items: center;
+	max-width: 100%;
+	padding: 2px 8px;
+	border-radius: var(--tag-radius, 2em);
+	background-color: var(--tag-background);
+	color: var(--tag-color);
+	font-size: var(--font-ui-smaller);
+	font-weight: 500;
+	line-height: 1.3;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+
+	&[data-notion-color] {
+		@include tag-look(--notional-tag-rgb);
+	}
+}
+
+// Invisible anchor of the palette opened from the "Set tag color" command
+.notional-tag-palette-anchor {
+	position: fixed;
+	top: 30%;
+	left: 50%;
+	width: 0;
+	height: 0;
+	transform: translateX(-80px);
+}

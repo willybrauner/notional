@@ -1,0 +1,19 @@
+@use './variables' as *;
+
+@mixin desktop {
+  @media (min-width: $breakpoint-md) { @content; }
+}
+
+@mixin mobile {
+  @media (max-width: $breakpoint-md-max) { @content; }
+}
+
+// Rules that only apply while a feature runs (body.notional-feature-<id>), at the
+// specificity they had without it (:where): turning a feature on changes nothing else
+@mixin feature($id) {
+  :where(body.notional-feature-#{$id}) & { @content; }
+}
+
+@mixin debug {
+  outline: 1px solid red;
+}

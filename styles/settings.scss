@@ -1,0 +1,32 @@
+// Settings → Notionalize (src/settings/)
+
+.notional-settings-badge {
+	margin-inline-start: var(--size-4-2);
+	padding: 0 var(--size-4-1);
+	border-radius: var(--radius-s);
+	background-color: var(--background-modifier-hover);
+	color: var(--text-muted);
+	font-size: var(--font-ui-smaller);
+	font-weight: var(--font-normal);
+	vertical-align: middle;
+}
+
+.notional-settings-learn-more {
+	white-space: nowrap;
+}
+
+.notional-settings-warning {
+	margin-top: var(--size-4-1);
+	color: var(--text-warning);
+}
+
+// Sub-settings of a feature, under its toggle
+.notional-settings-sub {
+	margin-inline-start: var(--size-4-6);
+	padding-inline-start: var(--size-4-4);
+	border-inline-start: var(--border-width) solid var(--background-modifier-border);
+
+	.setting-item:first-child {
+		border-top: none;
+	}
+}

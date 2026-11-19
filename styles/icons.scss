@@ -1,0 +1,692 @@
+@use './variables' as *;
+@use './mixins' as *;
+
+// =============================================================================
+// ICONS FEATURE
+// =============================================================================
+
+// Icon color palette (independent from select-property)
+$icon-colors-light: (
+	'gray': #787774,
+	'slate': #64748B,
+	'brown': #976D57,
+	'orange': #CB7D42,
+	'amber': #D4912A,
+	'yellow': #C09A3A,
+	'olive': #7F7D3A,
+	'lime': #7A9A2E,
+	'green': #548164,
+	'mint': #3FA07A,
+	'teal': #3E8A83,
+	'cyan': #2F8FAF,
+	'sky': #3B9AD9,
+	'blue': #487CA5,
+	'navy': #2F4A7A,
+	'indigo': #5A63B8,
+	'violet': #7B5CD6,
+	'purple': #8861B0,
+	'fuchsia': #B347B8,
+	'pink': #B85D8E,
+	'rose': #D0587A,
+	'red': #C4554D,
+	'coral': #E0735A,
+);
+
+$icon-colors-dark: (
+	'gray': #9B9A97,
+	'slate': #94A3B8,
+	'brown': #B07355,
+	'orange': #D9730D,
+	'amber': #E0A43A,
+	'yellow': #C09035,
+	'olive': #A3A04E,
+	'lime': #8DB33A,
+	'green': #448361,
+	'mint': #5CC49A,
+	'teal': #4AA89E,
+	'cyan': #4FB3D1,
+	'sky': #62B4EC,
+	'blue': #5B9BD6,
+	'navy': #6A86C0,
+	'indigo': #7B84E0,
+	'violet': #9C84EE,
+	'purple': #9B6DD6,
+	'fuchsia': #D06AD6,
+	'pink': #CC5FAA,
+	'rose': #E57A98,
+	'red': #E05555,
+	'coral': #F08C74,
+);
+
+// =============================================================================
+// Wrapper de base
+// =============================================================================
+
+.notional-icon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	color: var(--text-muted);
+	vertical-align: middle;
+
+	svg {
+		width: 100%;
+		height: 100%;
+		color: inherit !important;
+	}
+}
+
+// Emoji: font-size matches the container dimension so the glyph fills the box like SVGs do
+.notional-icon--emoji {
+	line-height: 1;
+}
+
+.notional-icon.notional-icon-nav.notional-icon--emoji,
+.notional-icon.notional-icon-inline.notional-icon--emoji {
+	font-size: 20px;
+}
+
+.notional-db-title-row .notional-icon-header.notional-icon--emoji {
+	font-size: 30px;
+}
+
+.notional-icon-area .notional-icon-header.notional-icon--emoji {
+	font-size: 42px;
+}
+
+@each $name, $color in $icon-colors-light {
+	.notional-icon.notional-icon--#{$name} {
+		color: $color;
+	}
+}
+
+.theme-dark {
+	@each $name, $color in $icon-colors-dark {
+		.notional-icon.notional-icon--#{$name} {
+			color: $color;
+		}
+	}
+}
+
+// =============================================================================
+// DB header: Add icon button above, icon left of the title
+// =============================================================================
+
+@include desktop {
+	.notional-db-header {
+		display: flex !important;
+		flex-direction: column;
+		align-items: stretch;
+	}
+}
+
+.notional-db-title-row {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.notional-db-title-row .notional-icon-header {
+	display: flex;
+	width: 30px;
+	height: 30px;
+	flex-shrink: 0;
+	cursor: pointer;
+	transition: opacity 0.12s ease;
+
+	svg {
+		width: 100%;
+		height: 100%;
+	}
+
+	&:hover {
+		opacity: 0.65;
+	}
+}
+
+// =============================================================================
+// Page header: area above the title
+// =============================================================================
+
+.notional-icon-area {
+	position: relative;
+	height: 0;
+
+	&.has-icon {
+		overflow: hidden;
+		height: 56px;
+	}
+}
+
+// Lines that contain only a link (internal or external) get a little vertical breathing room (Notion-style)
+.markdown-source-view.mod-cm6 .cm-line.notional-sole-link-line {
+	padding-block: 3px;
+}
+
+// File explorer rows with an icon: icon and name centered on one line.
+// :where keeps the specificity of a plain .tree-item-self rule
+.tree-item-self:where(:has(> .notional-icon-nav)) {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+}
+
+// On mobile, hide icon area when on a base (bases-header present as sibling)
+@include mobile {
+	.view-content:has(.bases-header) .notional-icon-area.has-icon {
+		height: 0;
+	}
+}
+
+.notional-icon-area .notional-icon-header {
+	display: flex;
+	width: 42px;
+	height: 42px;
+	margin-top: 8px;
+	cursor: pointer;
+	transition: opacity 0.12s ease;
+
+	svg {
+		width: 100%;
+		height: 100%;
+	}
+
+	&:hover {
+		opacity: 0.65;
+	}
+}
+
+// "Add icon" button: hidden by default, shown by is-hovering (opacity only, no layout)
+.notional-add-icon-btn {
+	display: flex;
+	gap: 5px;
+	height: auto;
+	align-items: center;
+	margin:0;
+	padding: 0px;
+	background: none !important;
+	border: none !important;
+	box-shadow: none !important;
+	border-radius: 5px;
+	cursor: pointer;
+	color: var(--text-faint);
+	font-size: 13px;
+	white-space: nowrap;
+	pointer-events: none;
+
+
+	// for motion
+	opacity: 0;
+
+	&:hover {
+		background: var(--background-modifier-hover);
+		opacity: 1!important;
+	}
+}
+
+.notional-add-icon-btn-icon {
+		display: inline-flex;
+		width: 13px;
+		height: 13px;
+		svg {
+			width: 100%;
+			height: 100%;
+		}
+	}
+
+
+// Page header: absolute, floating right above the title (no layout impact)
+.notional-icon-area .notional-add-icon-btn {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+}
+
+// Specific TOUCH device
+.notional-icon-area .notional-add-icon-btn--touch-device {
+	position: absolute;
+	bottom: -14px;
+	left: 0;
+	
+}
+
+// DB header on desktop: the container is a flex column, push the button up
+.notional-db-header .notional-icon-area .notional-add-icon-btn {
+	top: 0;
+	bottom: auto;
+	transform: translateY(-100%);
+}
+
+// DB header mobile : bouton en flux normal
+@include mobile {
+	.notional-db-header .notional-icon-area:not(.has-icon) {
+		height: auto;
+	}
+
+	.notional-db-header .notional-icon-area .notional-add-icon-btn {
+		position: relative !important;
+		top: auto;
+		bottom: auto;
+		left: auto;
+		transform: none;
+	}
+}
+
+// DB header: the icon is in titleRow, not in the area
+.notional-db-header .notional-icon-area.has-icon {
+	height: 0;
+	overflow: visible;
+}
+
+// Visible on hover: CSS only, no JS
+// Page header: while the inline title or the button itself is hovered
+.notional-icon-area:has(~ .inline-title:hover):not(.has-icon) .notional-add-icon-btn,
+.notional-icon-area:hover:not(.has-icon) .notional-add-icon-btn {
+	opacity: .5;
+	pointer-events: auto;
+}
+
+// DB header: while any part of the header is hovered
+.notional-db-header:hover .notional-icon-area:not(.has-icon) .notional-add-icon-btn {
+	opacity: .5;
+	pointer-events: auto;
+}
+
+// // Mobile : toujours visible sans hover
+// @include mobile {
+// 	.notional-icon-area:not(.has-icon) .notional-add-icon-btn {
+// 		opacity: .5;
+// 		pointer-events: auto;
+// 	}
+// }
+
+// Hidden once an icon is set
+.notional-icon-area.has-icon .notional-add-icon-btn {
+	opacity: 0 !important;
+	pointer-events: none !important;
+}
+
+// Hidden while the picker is open
+body.notional-picker-active .notional-add-icon-btn {
+	opacity: 0 !important;
+	pointer-events: none !important;
+}
+
+// =============================================================================
+// Nav & Inline
+// =============================================================================
+
+.notional-icon.notional-icon-nav {
+	$size: 20px;
+	width: $size;
+	height: $size;
+	margin-right: 6px;
+	flex-shrink: 0;
+	
+	svg {
+		width: $size;
+		height: $size;
+	}
+}
+// Tab header: Obsidian hides the icon of markdown tabs; shown when it's ours
+.workspace .mod-root .workspace-tab-header[data-type] .workspace-tab-header-inner-icon:has(> .notional-icon-tab) {
+	display: flex;
+}
+
+// Same size as Obsidian's view icon it replaces
+.notional-icon.notional-icon-tab {
+	width: var(--icon-size);
+	height: var(--icon-size);
+
+	&.notional-icon--emoji {
+		font-size: var(--icon-size);
+	}
+
+	img {
+		width: 100%;
+		height: 100%;
+	}
+}
+
+.notional-icon.notional-icon-inline {
+	$size: 20px;
+	width: $size;
+	height: $size;
+	margin-right: 3px;
+	vertical-align: middle;
+}
+
+// Inside code mirror, not table
+.notional-icon-inline-wrapper {
+	display: inline-flex;
+	align-items: center;
+	vertical-align: middle;
+	cursor: pointer;
+
+	& .notional-icon-inline {
+	$size: 20px;
+	width: $size;
+	height: $size;
+	margin-right: 3px;
+	margin-top: -2px;
+	vertical-align: middle;
+}
+}
+
+// =============================================================================
+// Picker (Notion-style)
+// =============================================================================
+
+.notional-icon-backdrop {
+	position: fixed;
+	inset: 0;
+	z-index: 9998;
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 0.15s ease;
+
+	&.is-mobile {
+		background: rgba(0, 0, 0, 0.45);
+		pointer-events: auto;
+	}
+
+	&.is-visible {
+		opacity: 1;
+		pointer-events: auto;
+	}
+}
+
+.notional-icon-picker {
+	// No border on the options, the search field and under the header (hover borders stay)
+	--background-modifier-border: transparent;
+	position: fixed;
+	z-index: 9999;
+	background: var(--background-secondary);
+	color: var(--text-normal);
+	border: 1px solid var(--background-modifier-border-hover);
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+
+	&.is-popover {
+		border-radius: 10px;
+		opacity: 0;
+		transform: translateY(-4px) scale(0.98);
+		transition: opacity 0.15s ease, transform 0.15s ease;
+		padding-bottom: 8px;
+
+		&.is-visible {
+			opacity: 1;
+			transform: translateY(0) scale(1);
+		}
+	}
+
+	&.is-mobile {
+		left: 0;
+		right: 0;
+		bottom: 0;
+		height: 75vh;
+		border-radius: 14px 14px 0 0;
+		border-bottom: none;
+		transform: translateY(100%);
+		transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+
+		&.is-visible {
+			transform: translateY(0);
+		}
+	}
+}
+
+.notional-picker-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 12px 14px 8px;
+	border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.notional-picker-tabs {
+	display: flex;
+	gap: 12px;
+}
+
+.notional-picker-tab {
+	font-size: 14px;
+	color: var(--text-muted);
+	padding-bottom: 2px;
+	cursor: pointer;
+	user-select: none;
+
+	&:hover {
+		color: var(--text-normal);
+	}
+
+	&.is-active {
+		color: var(--text-normal);
+		font-weight: 500;
+		border-bottom: 2px solid var(--text-normal);
+	}
+}
+
+.notional-picker-remove-btn {
+	background: none !important;
+	border: none !important;
+	box-shadow: none !important;
+	color: var(--text-muted) !important;
+	font-size: 13px;
+	cursor: pointer;
+	padding: 3px 8px;
+	border-radius: 5px;
+	margin-left: auto;
+
+	&:hover {
+		background: var(--background-modifier-hover);
+		color: var(--text-normal) !important;
+	}
+}
+
+.notional-picker-search-wrap {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	margin: 8px 10px 6px;
+	padding: 0 8px;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 6px;
+	cursor: text;
+}
+
+.notional-picker-search-ico {
+	display: flex;
+	color: var(--text-faint);
+	flex-shrink: 0;
+
+	svg {
+		width: 13px;
+		height: 13px;
+	}
+}
+
+.notional-picker-search {
+	flex: 1;
+	background: none;
+	border: none;
+	padding: 7px 0;
+	font-size: 13px;
+	color: var(--text-normal);
+	outline: none;
+
+	&::placeholder {
+		color: var(--text-faint);
+	}
+}
+
+$gradient-size: 32px;
+
+.notional-picker-scroll-outer {
+	position: relative;
+	height: 300px; // popover desktop
+
+	&::before,
+	&::after {
+		content: '';
+		position: absolute;
+		left: 0;
+		right: 0;
+		height: $gradient-size;
+		pointer-events: none;
+		z-index: 1;
+		opacity: 0;
+		transition: opacity 0.15s ease;
+	}
+
+	&::before {
+		top: 0;
+		background: linear-gradient(to bottom, var(--background-secondary), transparent);
+	}
+
+	&::after {
+		bottom: 0;
+		background: linear-gradient(to top, var(--background-secondary), transparent);
+	}
+
+	&.can-scroll-up::before   { opacity: 1; }
+	&.can-scroll-down::after  { opacity: 1; }
+}
+
+.notional-icon-picker.is-mobile .notional-picker-scroll-outer {
+	flex: 1;
+	min-height: 0;
+	height: auto;
+}
+
+.notional-picker-grid-wrapper {
+	height: 100%;
+	overflow: auto;
+}
+
+.notional-picker-grid-inner {
+	padding: 2px 10px;
+}
+
+.notional-picker-section-label {
+	font-size: 12px;
+	font-weight: 500;
+	color: var(--text-muted);
+	// text-transform: uppercase;
+	padding: 12px 0 8px;
+}
+
+.notional-picker-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(30px, 1fr));
+	gap: 0px;
+	margin-bottom: 4px;
+}
+
+.notional-picker-grid--emoji {
+	grid-template-columns: repeat(auto-fill, minmax(36px, 1fr));
+}
+
+// Scoped to .notional-icon-picker to override Obsidian's default button styles
+.notional-icon-picker .notional-icon-option {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 7px;
+	background: var(--background-secondary);
+	border: 1px solid var(--background-modifier-border);
+	box-shadow: none;
+	border-radius: 6px;
+	cursor: pointer;
+	color: var(--text-normal);
+
+	&:hover {
+		background: var(--background-modifier-hover);
+		border-color: var(--background-modifier-border-hover);
+	}
+
+	&.is-selected {
+		background: var(--background-modifier-active-hover);
+	}
+
+	.notional-icon {
+		width: 20px;
+		height: 20px;
+		color: inherit;
+	}
+}
+
+// Emoji buttons — override icon sizing, render emoji character at readable size
+.notional-icon-picker .notional-emoji-option {
+	font-size: 20px;
+	line-height: 1;
+	padding: 5px;
+}
+
+// =============================================================================
+// Color popover (opens on a click on an icon of the grid)
+// =============================================================================
+
+.notional-color-popover {
+	position: absolute;
+	z-index: 10000;
+	background: var(--background-primary);
+	border: 1px solid var(--background-modifier-border-hover);
+	border-radius: 8px;
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+	display: grid;
+	grid-template-columns: repeat(6, 36px);
+	gap: 2px;
+	padding: 6px;
+}
+
+// Scoped to override Obsidian's button styles
+.notional-color-popover .notional-color-option {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 36px;
+	height: 36px;
+	background: none;
+	border: 2px solid transparent;
+	box-shadow: none;
+	border-radius: 6px;
+	cursor: pointer;
+	padding: 0;
+
+	&:hover {
+		background: var(--background-modifier-hover);
+	}
+
+	&.is-selected {
+		border-color: var(--interactive-accent);
+	}
+
+	// The color comes from applyColor on the glyph (.notional-icon.notional-icon--{color})
+	.notional-icon {
+		width: 20px;
+		height: 20px;
+	}
+}
+// ── Picker utility classes ─────────────────────────────────────────────────────
+
+// Scrollable grid wrapper (overflow set via class instead of inline style)
+.notional-picker-grid-wrapper {
+	overflow: auto;
+}
+
+// Invisible sentinel used for IntersectionObserver lazy-loading
+.notional-picker-sentinel {
+	height: 1px;
+	width: 100%;
+}
+
+// Search bar visibility toggle
+.notional-picker-search-wrap {
+	&.is-hidden {
+		display: none;
+	}
+}

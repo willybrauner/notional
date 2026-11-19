@@ -1,0 +1,825 @@
+// =============================================================================
+// TIMELINE - Notion-like Bases view
+// =============================================================================
+
+@use './variables' as *;
+@use './mixins' as *;
+
+// Bars match Notion's timeline cards: 36px high, 6px radius, 14px titles (bars and list)
+$row-height: 40px;
+$toolbar-height: 36px;
+$header-row: 24px;
+$bar-inset: 2px;
+$bar-radius: 6px;
+$title-font-size: 14px;
+
+.notional-timeline {
+	--notional-timeline-weekend: color-mix(in srgb, var(--background-primary), var(--text-normal) 3.5%);
+	--notional-timeline-line: color-mix(in srgb, var(--background-primary), var(--text-normal) 10%);
+	--notional-timeline-bar-bg: color-mix(in srgb, var(--background-primary), var(--text-normal) 7%);
+	--notional-timeline-bar-border: color-mix(in srgb, var(--background-primary), var(--text-normal) 16%);
+	--notional-timeline-bar-border-hover: color-mix(in srgb, var(--background-primary), var(--text-normal) 28%);
+	--notional-timeline-bar-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+	// Selected bar: a grey fill, like Notion
+	--notional-timeline-selected-bg: color-mix(in srgb, var(--background-primary), var(--text-normal) 12%);
+	--notional-timeline-today: var(--color-red);
+	--notional-timeline-row-hover: var(--background-modifier-hover);
+
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	min-height: 240px;
+	user-select: none;
+}
+
+// Light theme: white cards with a light border and a soft shadow below, grey when selected (Notion)
+.theme-light .notional-timeline {
+	--notional-timeline-bar-bg: var(--background-primary);
+	--notional-timeline-bar-border: color-mix(in srgb, var(--background-primary), var(--text-normal) 8%);
+	--notional-timeline-bar-shadow: 0 2px 4px rgba(15, 15, 15, 0.05);
+	--notional-timeline-selected-bg: color-mix(in srgb, var(--background-primary), var(--text-normal) 5%);
+}
+
+// "Bases layout" tweak: the timeline runs to the right edge of the view, the
+// base's right inset moves into the toolbar, which stays aligned with the base
+// header. The root keeps the view's font size so `ch` matches that inset.
+:where(body.notional-feature-tweak-bases-layout) {
+	.bases-view.notional-timeline-host {
+		padding-inline-end: 0;
+	}
+}
+
+// ─── Toolbar ──────────────────────────────────────────────────────────────────
+
+.notional-timeline-toolbar {
+	display: flex;
+	align-items: center;
+	gap: 2px;
+	flex: none;
+	height: $toolbar-height;
+	padding: 0 var(--size-4-2);
+
+	@include feature(tweak-bases-layout) {
+		padding-inline-end: calc(#{$padding-inline-mobile} + var(--size-4-2));
+
+		@include desktop {
+			padding-inline-end: calc(#{$padding-inline-desktop} + var(--size-4-2));
+		}
+	}
+}
+
+.notional-timeline-toolbar-spacer {
+	flex: 1;
+}
+
+.notional-timeline-toolbar-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 2px;
+	height: 26px;
+	padding: 0 8px;
+	border: none;
+	border-radius: var(--radius-s);
+	background: transparent;
+	box-shadow: none;
+	color: var(--text-muted);
+	font-size: var(--font-ui-small);
+	cursor: pointer;
+
+	&.clickable-icon {
+		padding: 0 4px;
+	}
+
+	&:hover {
+		background: var(--background-modifier-hover);
+		color: var(--text-normal);
+	}
+
+	svg {
+		width: 16px;
+		height: 16px;
+	}
+}
+
+.notional-timeline-zoom-chevron {
+	display: inline-flex;
+	opacity: 0.7;
+
+	svg {
+		width: 13px;
+		height: 13px;
+	}
+}
+
+// ─── Scroll area ──────────────────────────────────────────────────────────────
+
+.notional-timeline-scroller {
+	position: relative;
+	flex: 1;
+	overflow: auto;
+	overscroll-behavior-x: contain;
+	border-top: 1px solid var(--notional-timeline-line);
+	font-size: var(--font-ui-small);
+}
+
+.notional-timeline-canvas {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	min-height: 100%;
+}
+
+// ─── Header ───────────────────────────────────────────────────────────────────
+
+.notional-timeline-header {
+	position: sticky;
+	top: 0;
+	z-index: 4;
+	display: flex;
+	height: $header-row * 2;
+	background: var(--background-primary);
+	border-bottom: 1px solid var(--notional-timeline-line);
+}
+
+.notional-timeline-header-corner {
+	position: sticky;
+	left: 0;
+	z-index: 5;
+	box-sizing: border-box;
+	display: flex;
+	flex: none;
+	align-items: flex-end;
+	justify-content: space-between;
+	width: var(--notional-timeline-sidebar);
+	padding: 0 6px 6px 12px;
+	background: var(--background-primary);
+
+	.has-sidebar & {
+		border-right: 1px solid var(--notional-timeline-line);
+	}
+
+	.notional-timeline-sidebar-count {
+		color: var(--text-faint);
+		font-size: var(--font-ui-smaller);
+	}
+}
+
+.notional-timeline-canvas:not(.has-sidebar) .notional-timeline-header-corner {
+	display: none;
+}
+
+.notional-timeline-collapse-btn {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 22px;
+	height: 22px;
+	border-radius: var(--radius-s);
+	color: var(--text-faint);
+	font-size: 15px;
+	line-height: 1;
+	cursor: pointer;
+
+	&:hover {
+		background: var(--background-modifier-hover);
+		color: var(--text-normal);
+	}
+}
+
+.notional-timeline-header-strip {
+	position: relative;
+	flex: none;
+}
+
+.notional-timeline-header-months,
+.notional-timeline-header-days {
+	position: absolute;
+	left: 0;
+	right: 0;
+	height: $header-row;
+}
+
+.notional-timeline-header-months {
+	top: 0;
+}
+
+.notional-timeline-header-days {
+	top: $header-row;
+}
+
+.notional-timeline-header-month {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	display: flex;
+	align-items: flex-end;
+
+	// Label stays visible at the left of the viewport while its month is on screen
+	span {
+		position: sticky;
+		left: calc(var(--notional-timeline-sidebar, 0px) + 10px);
+		padding: 0 10px 2px;
+		color: var(--text-normal);
+		font-size: var(--font-ui-small);
+		font-weight: var(--font-semibold);
+		white-space: nowrap;
+	}
+}
+
+.notional-timeline-header-day {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--text-muted);
+	font-size: var(--font-ui-smaller);
+	font-variant-numeric: tabular-nums;
+	white-space: nowrap;
+
+	&.is-weekend {
+		color: var(--text-faint);
+	}
+
+	// Today: compact red pill, joined to the vertical line by a short stem
+	&.is-today {
+		z-index: 1;
+
+		&::after {
+			content: '';
+			position: absolute;
+			top: calc(50% + 9px);
+			bottom: -1px;
+			left: 50%;
+			width: 1px;
+			background: var(--notional-timeline-today);
+			opacity: 0.6;
+		}
+	}
+
+	span.is-today {
+		box-sizing: border-box;
+		min-width: 18px;
+		height: 18px;
+		padding: 0 4px;
+		border-radius: 9px;
+		background: var(--notional-timeline-today);
+		color: #fff;
+		font-size: 11px;
+		font-weight: var(--font-semibold);
+		line-height: 18px;
+		text-align: center;
+	}
+}
+
+.notional-timeline-today-dot {
+	position: absolute;
+	bottom: 2px;
+	width: 6px;
+	height: 6px;
+	margin-left: -3px;
+	border-radius: 50%;
+	background: var(--notional-timeline-today);
+}
+
+// ─── Body & grid ──────────────────────────────────────────────────────────────
+
+.notional-timeline-body {
+	position: relative;
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+}
+
+.notional-timeline-row.notional-timeline-row-filler {
+	flex: 1;
+	min-height: $row-height * 2;
+
+	&:hover .notional-timeline-sidebar-cell {
+		background: var(--background-primary);
+	}
+}
+
+.notional-timeline-grid {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: var(--notional-timeline-sidebar);
+	z-index: 0;
+	background-repeat: repeat-x;
+	pointer-events: none;
+}
+
+.notional-timeline-today-line {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	width: 1px;
+	background: var(--notional-timeline-today);
+	opacity: 0.6;
+}
+
+// ─── Rows ─────────────────────────────────────────────────────────────────────
+
+.notional-timeline-row {
+	position: relative;
+	z-index: 1;
+	display: flex;
+	flex: none;
+	height: $row-height;
+
+	&:not(.notional-timeline-row-filler):hover {
+		.notional-timeline-sidebar-cell,
+		.notional-timeline-track {
+			background-color: var(--notional-timeline-row-hover);
+		}
+
+		.notional-timeline-sidebar-cell {
+			// Keep the sticky cell opaque while tinted
+			background-image: linear-gradient(var(--notional-timeline-row-hover), var(--notional-timeline-row-hover));
+			background-color: var(--background-primary);
+		}
+
+		.notional-timeline-locate {
+			opacity: 1;
+		}
+	}
+}
+
+.notional-timeline-row-group {
+	margin-top: 8px;
+
+	.notional-timeline-sidebar-cell {
+		gap: 8px;
+		font-weight: var(--font-semibold);
+	}
+
+	&:hover .notional-timeline-track {
+		background-color: transparent;
+	}
+}
+
+.notional-timeline-sidebar-cell {
+	position: sticky;
+	left: 0;
+	z-index: 2;
+	box-sizing: border-box;
+	display: flex;
+	flex: none;
+	align-items: center;
+	gap: 6px;
+	width: var(--notional-timeline-sidebar);
+	padding: 0 6px 0 12px;
+	background: var(--background-primary);
+	border-right: 1px solid var(--notional-timeline-line);
+}
+
+.notional-timeline-sidebar-title {
+	display: flex;
+	flex: 1;
+	align-items: center;
+	gap: 6px;
+	min-width: 0;
+	overflow: hidden;
+	color: var(--text-normal);
+	font-size: $title-font-size;
+	cursor: pointer;
+
+	> span:last-child {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.notional-icon {
+		flex: none;
+	}
+}
+
+.notional-timeline-sidebar-count {
+	color: var(--text-faint);
+	font-size: var(--font-ui-smaller);
+	font-weight: normal;
+}
+
+.notional-timeline-locate {
+	display: flex;
+	flex: none;
+	align-items: center;
+	justify-content: center;
+	width: 22px;
+	height: 22px;
+	border-radius: var(--radius-s);
+	color: var(--text-faint);
+	opacity: 0;
+	transition: opacity 120ms ease;
+	cursor: pointer;
+
+	svg {
+		width: 14px;
+		height: 14px;
+	}
+
+	&:hover {
+		background: var(--background-modifier-hover);
+		color: var(--text-normal);
+	}
+}
+
+.notional-timeline-track {
+	position: relative;
+	flex: none;
+	height: 100%;
+}
+
+.notional-timeline-row-undated .notional-timeline-sidebar-title {
+	color: var(--text-muted);
+}
+
+.notional-timeline-row-new {
+	.notional-timeline-sidebar-title {
+		color: var(--text-faint);
+
+		&:hover {
+			color: var(--text-normal);
+		}
+	}
+}
+
+// ─── Manual reorder (vertical drag of a bar) ─────────────────────────────────
+
+.notional-timeline-body.is-reordering .notional-timeline-row {
+	transform: translateY(var(--notional-timeline-reorder-y, 0px));
+	transition: transform 120ms ease;
+}
+
+.notional-timeline-body .notional-timeline-row.is-reordering {
+	z-index: 3;
+	transition: none;
+
+	.notional-timeline-bar {
+		border-color: var(--interactive-accent);
+		box-shadow: 0 6px 18px rgba(0, 0, 0, 0.16);
+	}
+}
+
+// ─── Bars ─────────────────────────────────────────────────────────────────────
+
+.notional-timeline-bar {
+	position: absolute;
+	top: $bar-inset;
+	bottom: $bar-inset;
+	min-width: 6px;
+	background: var(--notional-timeline-bar-bg);
+	border: 1px solid var(--notional-timeline-bar-border);
+	border-radius: $bar-radius;
+	box-shadow: var(--notional-timeline-bar-shadow);
+	cursor: grab;
+	touch-action: pan-x pan-y;
+	-webkit-touch-callout: none;
+	transition: box-shadow 150ms ease, border-color 150ms ease;
+
+	&:hover {
+		z-index: 2;
+		border-color: var(--notional-timeline-bar-border-hover);
+		box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+
+		.notional-timeline-handle::after {
+			opacity: 1;
+		}
+	}
+
+	&.is-dragging {
+		z-index: 6;
+		border-color: var(--interactive-accent);
+		box-shadow: 0 6px 18px rgba(0, 0, 0, 0.16);
+		cursor: grabbing;
+		// Snapping from day to day animates instead of jumping
+		transition: left 90ms ease-out, width 90ms ease-out, box-shadow 150ms ease;
+	}
+
+	&.is-readonly {
+		cursor: pointer;
+		border-style: dashed;
+	}
+}
+
+.notional-timeline-bar-content {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	display: flex;
+	align-items: center;
+	width: calc(100% + var(--notional-timeline-label-overflow, 0px));
+	pointer-events: none;
+}
+
+.notional-timeline-bar-label {
+	// Sticks to the visible left edge when the bar starts off-screen (like Notion)
+	position: sticky;
+	left: calc(var(--notional-timeline-sidebar, 0px) + 6px);
+	flex: none;
+	margin-left: 6px;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	white-space: nowrap;
+	pointer-events: none;
+
+	// Title and links stay interactive (hover preview, link clicks)
+	.notional-timeline-bar-title,
+	a {
+		pointer-events: auto;
+	}
+}
+
+.notional-timeline-bar-title {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	color: var(--text-normal);
+	font-size: $title-font-size;
+	font-weight: var(--font-medium);
+}
+
+.notional-timeline-bar-props {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	color: var(--text-muted);
+	font-size: var(--font-ui-smaller);
+
+	.notional-tag {
+		font-size: var(--font-ui-smaller);
+	}
+}
+
+.notional-timeline-bar-prop-group {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+}
+
+.notional-timeline-bar-prop {
+	display: inline-flex;
+	align-items: center;
+	max-width: 240px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.notional-timeline-handle {
+	position: absolute;
+	top: -1px;
+	bottom: -1px;
+	z-index: 1;
+	width: 9px;
+	cursor: ew-resize;
+
+	&::after {
+		content: '';
+		position: absolute;
+		top: 50%;
+		width: 3px;
+		height: 12px;
+		margin-top: -6px;
+		border-radius: 2px;
+		background: var(--text-faint);
+		opacity: 0;
+		transition: opacity 120ms ease;
+		pointer-events: none;
+	}
+
+	&:hover::after {
+		background: var(--interactive-accent);
+	}
+}
+
+.notional-timeline-handle--start {
+	left: -1px;
+
+	&::after {
+		left: 3px;
+	}
+}
+
+.notional-timeline-handle--end {
+	right: -1px;
+
+	&::after {
+		right: 3px;
+	}
+}
+
+.notional-timeline-tooltip {
+	position: absolute;
+	bottom: calc(100% + 6px);
+	left: 0;
+	padding: 3px 7px;
+	border-radius: var(--radius-s);
+	background: var(--interactive-accent);
+	color: var(--text-on-accent);
+	font-size: var(--font-ui-smaller);
+	font-weight: var(--font-medium);
+	white-space: nowrap;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+	pointer-events: none;
+}
+
+// First rows: show the tooltip below the bar so the sticky header doesn't hide it
+.notional-timeline-row:nth-child(-n + 3) .notional-timeline-tooltip {
+	top: calc(100% + 6px);
+	bottom: auto;
+}
+
+// ─── Ghost placement (undated / new rows) ─────────────────────────────────────
+
+.notional-timeline-row-undated .notional-timeline-track,
+.notional-timeline-row-new .notional-timeline-track {
+	cursor: pointer;
+}
+
+.notional-timeline-ghost {
+	position: absolute;
+	top: $bar-inset;
+	bottom: $bar-inset;
+	display: flex;
+	align-items: center;
+	border: 1px dashed var(--text-faint);
+	border-radius: $bar-radius;
+	opacity: 0;
+	transition: opacity 120ms ease;
+	pointer-events: none;
+
+	span {
+		padding-left: 6px;
+		color: var(--text-faint);
+		font-size: var(--font-ui-smaller);
+		white-space: nowrap;
+	}
+
+	.notional-timeline-track:hover > & {
+		opacity: 1;
+	}
+}
+
+// ─── Empty state & global drag cursor ─────────────────────────────────────────
+
+.notional-timeline-empty {
+	padding: var(--size-4-8);
+	color: var(--text-muted);
+	font-size: var(--font-ui-small);
+	text-align: center;
+}
+
+body.notional-timeline-dragging[data-notional-timeline-cursor='grabbing'] * {
+	cursor: grabbing !important;
+}
+
+body.notional-timeline-dragging[data-notional-timeline-cursor='ew-resize'] * {
+	cursor: ew-resize !important;
+}
+
+body.notional-timeline-dragging[data-notional-timeline-cursor='col-resize'] * {
+	cursor: col-resize !important;
+}
+
+// ─── List column resize (drag its right edge) ─────────────────────────────────
+
+// On the root, over the scroller: the list is sticky, its edge never scrolls
+.notional-timeline-sidebar-resize {
+	position: absolute;
+	top: $toolbar-height;
+	bottom: 0;
+	left: calc(var(--notional-timeline-sidebar) - 4px);
+	z-index: 6;
+	width: 8px;
+	cursor: col-resize;
+	touch-action: none;
+
+	&::after {
+		content: '';
+		position: absolute;
+		inset: 0 auto 0 3px;
+		width: 2px;
+		background-color: var(--interactive-accent);
+		opacity: 0;
+		transition: opacity 120ms ease;
+	}
+
+	&:hover::after {
+		opacity: 1;
+		transition-delay: 150ms;
+	}
+
+	&.is-dragging::after {
+		opacity: 1;
+		transition-delay: 0ms;
+	}
+}
+
+// ─── Note icons (resolved like the file explorer, click → icon picker) ────────
+
+.notional-timeline-sidebar-title .notional-icon.notional-icon-inline,
+.notional-timeline-bar-title .notional-icon.notional-icon-inline {
+	$size: 18px;
+	flex: none;
+	width: $size;
+	height: $size;
+	margin: 0;
+	border-radius: var(--radius-s);
+	cursor: pointer;
+
+	svg {
+		width: $size;
+		height: $size;
+	}
+
+	&:hover {
+		background: var(--background-modifier-hover);
+	}
+}
+
+.notional-timeline-bar-title .notional-icon.notional-icon-inline {
+	$size: 16px;
+	width: $size;
+	height: $size;
+
+	svg {
+		width: $size;
+		height: $size;
+	}
+}
+
+// ─── Selection (rectangle, Shift-click, ⌫ to delete) ──────────────────────────
+
+.notional-timeline-host:focus,
+.notional-timeline-host:focus-visible {
+	outline: none;
+}
+
+.notional-timeline {
+	--notional-timeline-selected-row: color-mix(in srgb, transparent, var(--interactive-accent) 8%);
+}
+
+.notional-timeline-bar.is-selected {
+	border-color: var(--interactive-accent);
+	background: var(--notional-timeline-selected-bg);
+}
+
+.notional-timeline-row.is-selected {
+	.notional-timeline-track {
+		background-color: var(--notional-timeline-selected-row);
+	}
+
+	.notional-timeline-sidebar-cell {
+		background-image: linear-gradient(var(--notional-timeline-selected-row), var(--notional-timeline-selected-row));
+	}
+}
+
+.notional-timeline-selection-hint {
+	padding: 0 6px;
+	color: var(--text-muted);
+	font-size: var(--font-ui-smaller);
+	opacity: 0;
+	transition: opacity 120ms ease;
+
+	&.is-visible {
+		opacity: 1;
+	}
+}
+
+// ─── Editable select / status chips on bars ───────────────────────────────────
+
+.notional-timeline-prop-editable {
+	border-radius: 20px;
+	cursor: pointer;
+	pointer-events: auto;
+	transition: filter 120ms ease;
+
+	&:hover {
+		filter: brightness(0.94);
+	}
+
+	.theme-dark &:hover {
+		filter: brightness(1.15);
+	}
+
+	// Empty value: small clickable placeholder
+	&:empty {
+		width: 14px;
+		height: 14px;
+		border: 1px dashed var(--text-faint);
+	}
+}
+
+// ─── Properties ───────────────────────────────────────────────────────────────
+// "timeline-order" is written by the plugin (manual reorder), not edited by hand
+.metadata-property[data-property-key="timeline-order"] {
+	@include feature(timeline) {
+		display: none;
+	}
+}

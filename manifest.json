@@ -1,0 +1,10 @@
+{
+	"id": "notionalize",
+	"name": "Notionalize",
+	"version": "0.1.0",
+	"minAppVersion": "1.10.2",
+	"description": "Notion-like pages and databases: folder pages, select chips with colors, icons, board and timeline views, side peek.",
+	"author": "Willy Brauner",
+	"authorUrl": "https://willybrauner.com",
+	"isDesktopOnly": false
+}

@@ -1,0 +1,169 @@
+@use './mixins' as *;
+
+// =============================================================================
+// Title mention — chip of a note mentioned in a note title (Notion "@page")
+// =============================================================================
+
+// ─────────────────────────────────────────────────────────── CHIP
+.notional-mention {
+	// Icon size relative to the text: rows show icons bigger than their text
+	--notional-mention-icon-size: 1.25em;
+	// Inline (not inline-flex): a long name wraps with the rest of the title
+	// instead of moving the whole chip to its own line
+	display: inline;
+	border-radius: 4px;
+	padding: 0 0.1em;
+	cursor: pointer;
+	// Hover background and radius on each line of a wrapped name
+	-webkit-box-decoration-break: clone;
+	box-decoration-break: clone;
+
+	&:hover {
+		background-color: var(--background-modifier-hover);
+	}
+}
+
+.notional-mention-text {
+	text-decoration: underline;
+	text-decoration-thickness: 1px;
+	text-decoration-color: var(--text-faint);
+	text-underline-offset: 0.2em;
+}
+
+// Target icon with an arrow over its bottom right corner
+.notional-mention-icon {
+	position: relative;
+	display: inline-flex;
+	// Centered on the text
+	vertical-align: middle;
+	margin-right: 0.25em;
+	width: var(--notional-mention-icon-size);
+	height: var(--notional-mention-icon-size);
+
+	.notional-icon.notional-icon-mention {
+		width: 100%;
+		height: 100%;
+	}
+
+	.notional-icon-mention.notional-icon--emoji {
+		font-size: 0.9em;
+	}
+}
+
+.notional-mention-arrow {
+	position: absolute;
+	right: -0.2em;
+	bottom: -0.2em;
+	display: inline-flex;
+	width: 0.6em;
+	height: 0.6em;
+	// No background: the chip sits on cards and rows of any color
+	color: var(--text-normal);
+
+	svg {
+		width: 100%;
+		height: 100%;
+		stroke-width: 3px;
+	}
+}
+
+// Timeline bars open on pointerup: the chip is only visual there
+.notional-timeline-bar .notional-mention {
+	pointer-events: none;
+}
+
+// ─────────────────────────────────────────────────────────── INLINE TITLE
+// The editable title is hidden behind the overlay until focused
+.inline-title.notional-title-has-mention:not(:focus) {
+	display: none;
+}
+
+.notional-title-mention {
+	font-family: var(--inline-title-font);
+	font-size: var(--inline-title-size);
+	font-weight: var(--inline-title-weight);
+	font-style: var(--inline-title-style);
+	line-height: var(--inline-title-line-height);
+	letter-spacing: -0.015em;
+	color: var(--inline-title-color);
+	margin-bottom: 0.5em;
+	white-space: pre-wrap;
+	cursor: text;
+
+	.notional-mention {
+		--notional-mention-icon-size: 1.05em;
+		border-radius: 6px;
+	}
+}
+
+// ─────────────────────────────────────────────────────────── PROPERTIES
+// Written by the plugin, not edited by hand
+.metadata-property[data-property-key="mentions"] {
+	@include feature(title-mention) {
+		display: none;
+	}
+}
+
+// ─────────────────────────────────────────────────────────── "@" POPOVER
+.suggestion-container:has(.notional-mention-suggest) {
+	@include feature(title-mention) {
+		padding-top: 4px;
+
+		&::before {
+			content: "Link to page";
+			display: block;
+			padding: 6px 12px 4px;
+			font-size: var(--font-ui-smaller);
+			font-weight: var(--font-medium);
+			color: var(--text-muted);
+		}
+	}
+}
+
+// ─────────────────────────────────────────────────────────── "OPEN" BUTTON
+// Table name cell of a note whose title is a mention alone (shown on row hover)
+.bases-table-cell:has(> .notional-mention-open) {
+	@include feature(title-mention) {
+		position: relative;
+	}
+}
+
+.notional-mention-open {
+	position: absolute;
+	top: 50%;
+	right: 6px;
+	transform: translateY(-50%);
+	display: none;
+	align-items: center;
+	gap: 6px;
+	height: 24px;
+	padding: 0 8px;
+	border: 1px solid var(--background-modifier-border-hover);
+	border-radius: 6px;
+	background-color: var(--background-primary);
+	box-shadow: none;
+	color: var(--text-muted);
+	font-size: 11px;
+	font-weight: var(--font-semibold);
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	cursor: pointer;
+
+	&:hover {
+		background-color: var(--background-modifier-hover);
+		color: var(--text-normal);
+	}
+
+	.bases-tr:hover & {
+		display: inline-flex;
+	}
+}
+
+.notional-mention-open-icon {
+	display: inline-flex;
+
+	svg {
+		width: 14px;
+		height: 14px;
+	}
+}

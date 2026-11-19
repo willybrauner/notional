@@ -1,0 +1,46 @@
+@use './variables' as *;
+@use './mixins' as *;
+
+// ─────────────────────────────────────────────────────────── GAP BETWEEN ITEMS
+// Scoped to our file items only — command palette items are unaffected
+.notional-suggestion-item + .notional-suggestion-item {
+	margin-top: 6px;
+}
+
+// ─────────────────────────────────────────────────────────── PATH (secondary)
+.notional-suggestion-path {
+	font-size: 11px;
+	color: var(--text-muted);
+	margin-top: 2px;
+}
+
+// ─────────────────────────────────────────────────────────── ICON (from icon feature)
+.notional-suggestion-item .suggestion-title {
+	display: flex;
+	align-items: center;
+}
+
+.notional-icon.notional-icon-suggestion {
+	$size: 20px;
+	width: $size;
+	height: $size;
+	margin-right: 6px;
+	flex-shrink: 0;
+
+	svg {
+		width: $size;
+		height: $size;
+	}
+}
+
+// ─────────────────────────────────────────────────────────── ICON BEFORE TITLE + FOLDER
+// Suggestion lists of notes on two lines ("[[" links, "@" title mentions):
+// the icon sits before both lines, centered
+.suggestion-item.notional-suggestion-with-icon {
+	display: flex;
+	align-items: center;
+
+	.notional-icon.notional-icon-suggestion {
+		margin-right: 10px;
+	}
+}

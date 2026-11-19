@@ -1,0 +1,28 @@
+@use './variables' as *;
+@use './mixins' as *;
+
+// Injected as a direct child of the cell (position: absolute)
+// sized and positioned over the link text.
+.inline-rename-input {
+	box-sizing: border-box;
+	border: 1px solid var(--interactive-accent);
+	color: var(--text-normal);
+	height: 100%;
+	width: 100%;
+
+	&:focus {
+		outline: none;
+		border-color: var(--interactive-accent-hover);
+		box-shadow: 0 0 0 2px var(--interactive-accent-hover, rgba(0, 0, 0, 0.1));
+	}
+}
+
+// Element the input covers, when not positioned already
+.inline-rename-container {
+	position: relative;
+}
+
+// Name under the input
+.inline-rename-hidden {
+	visibility: hidden;
+}

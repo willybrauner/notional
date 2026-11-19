@@ -1,0 +1,57 @@
+@use './variables' as *;
+@use './mixins' as *;
+
+/*
+Notionalize DB HEADERS
+*/
+
+.notional-db-header {
+	display: block;
+	position: sticky;
+	top: 0;
+	z-index: 5;
+	background: var(--background-primary);
+	padding: 8px $padding-inline-mobile;
+
+	@include desktop {
+		position: static;
+		background: none;
+		padding-top: 4ch;
+		padding-inline: $padding-inline-desktop;
+		padding-bottom: 1ch;
+	}
+}
+
+.notional-db-title {
+	font-size: 20px;
+	font-weight: 700;
+	line-height: 1.2;
+	outline: none;
+	cursor: text;
+	color: var(--text-normal);
+	transition: background-color 0.1s;
+
+	@include desktop {
+		font-size: 32px;
+	}
+}
+
+.notional-db-title:hover {
+	cursor: pointer;
+	border-radius: 4px;
+}
+
+.notional-db-title:focus {
+	cursor: text;
+}
+
+.theme-dark .notional-db-title:focus {
+	background-color: transparent;
+}
+
+// On mobile, the base header sits below the sticky database header
+@include mobile {
+	.view-content:has(.notional-db-header) .bases-header {
+		top: $db-header-height-mobile;
+	}
+}

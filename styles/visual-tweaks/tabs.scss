@@ -1,0 +1,19 @@
+// Visual tweak "Raised active tab".
+
+// Main tab bar: the active tab looks like a hovered one (rounded inner background)
+:where(body.notional-feature-tweak-tabs) .workspace-split.mod-root .workspace-tab-header-container {
+  --tab-background-active: var(--tab-background-hover);
+  --tab-inner-background-active: var(--tab-inner-background-hover);
+  --tab-inner-border-color-active: var(--tab-inner-border-color-hover);
+  --tab-outline-color: var(--tab-outline-color-hover);
+}
+
+// Light theme: the hover grey is darker than the tab bar and made the active tab look
+// recessed. Raised instead: page background + light outline and shadow.
+.theme-light:where(.notional-feature-tweak-tabs) .workspace-split.mod-root .workspace-tab-header-container {
+  --tab-inner-background-active: var(--background-primary);
+
+  .workspace-tab-header.is-active .workspace-tab-header-inner {
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.06);
+  }
+}

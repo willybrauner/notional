@@ -1,0 +1,72 @@
+@use 'sass:color';
+@use 'sass:list';
+@use 'sass:math';
+
+// ─── Notion Color Maps ────────────────────────────────────────────────────────
+// (chip background, chip text) per color and theme
+
+$notion-light: (
+	'gray': (rgba(28, 19, 1, 0.11), rgb(73, 72, 70)),
+	'brown': (rgba(127, 51, 0, 0.157), rgb(88, 68, 55)),
+	'yellow': (rgba(209, 156, 0, 0.282), rgb(101, 81, 33)),
+	'orange': (rgba(196, 88, 0, 0.204), rgb(106, 66, 34)),
+	'green': (rgba(0, 96, 38, 0.157), rgb(42, 83, 60)),
+	'blue': (rgba(0, 118, 217, 0.204), rgb(38, 74, 114)),
+	'purple': (rgba(92, 0, 163, 0.14), rgb(44, 44, 43)),
+	'pink': (rgba(183, 0, 78, 0.153), rgb(104, 53, 78)),
+	'red': (rgba(206, 24, 0, 0.165), rgb(109, 53, 49)),
+);
+
+$notion-dark: (
+	'gray': (rgba(255, 252, 235, 0.306), rgb(240, 239, 237)),
+	'brown': (rgba(255, 184, 132, 0.365), rgb(245, 237, 233)),
+	'yellow': (rgba(255, 188, 53, 0.46), rgb(249, 243, 220)),
+	'orange': (rgba(255, 143, 71, 0.482), rgb(251, 235, 222)),
+	'green': (rgba(113, 255, 175, 0.337), rgb(232, 241, 236)),
+	'blue': (rgba(81, 166, 255, 0.494), rgb(229, 242, 252)),
+	'purple': (rgba(208, 147, 255, 0.427), rgb(243, 235, 249)),
+	'pink': (rgba(255, 133, 192, 0.427), rgb(250, 233, 241)),
+	'red': (rgba(255, 116, 105, 0.525), rgb(252, 233, 231)),
+);
+
+// "r, g, b" of a color, for rgba(var(--x), alpha) in CSS
+@function rgb-triplet($c) {
+	@return math.round(color.channel($c, 'red', $space: rgb)), math.round(color.channel($c, 'green', $space: rgb)), math.round(color.channel($c, 'blue', $space: rgb));
+}
+
+// Opaque base of each chip background as a CSS variable, so other surfaces
+// (board columns and cards, tags) tint with the same hue at their own alpha:
+// rgba(var(--notional-blue-rgb), 0.07)
+// The chip colors are exposed too, for rules generated at runtime (tag colors):
+// --notional-blue-bg, --notional-blue-text
+body {
+	@each $name, $colors in $notion-light {
+		--notional-#{$name}-rgb: #{rgb-triplet(list.nth($colors, 1))};
+		--notional-#{$name}-bg: #{list.nth($colors, 1)};
+		--notional-#{$name}-text: #{list.nth($colors, 2)};
+	}
+}
+
+.theme-dark {
+	@each $name, $colors in $notion-dark {
+		--notional-#{$name}-rgb: #{rgb-triplet(list.nth($colors, 1))};
+		--notional-#{$name}-bg: #{list.nth($colors, 1)};
+		--notional-#{$name}-text: #{list.nth($colors, 2)};
+	}
+}
+
+// Sets --notional-color-rgb on elements carrying data-notion-color
+@mixin notion-color-rgb {
+	@each $name, $colors in $notion-light {
+		&[data-notion-color='#{$name}'] {
+			--notional-color-rgb: var(--notional-#{$name}-rgb);
+		}
+	}
+}
+
+// Obsidian's tag look in a Notion color: text in the color, background the
+// same color made transparent. $rgb-var: custom property holding "r, g, b".
+@mixin tag-look($rgb-var, $alpha: 0.15) {
+	background-color: rgba(var(#{$rgb-var}), $alpha);
+	color: rgb(var(#{$rgb-var}));
+}

@@ -1,0 +1,26 @@
+filters:
+  and:
+    - 'file.inFolder("Tasks") && file.basename != "Tasks" && file.basename != "_template" && (file.folder == "Tasks" || (file.basename == file.folder.split("/")[file.folder.split("/").length - 1] && file.folder.split("/").length == 2)) && (file.ext == "md" || file.ext == "base")'
+properties:
+  note.status:
+    displayName: Status
+    select.options:
+      - Not started
+      - In progress
+      - Done
+views:
+  - type: table
+    name: Table
+    order:
+      - file.name
+      - note.status
+      - note.start
+    columnSize:
+      file.name: 320
+  - type: notional-board
+    name: Board
+    notionalColumnProperty: note.status
+  - type: notional-timeline
+    name: Timeline
+    startProperty: note.start
+    endProperty: note.end

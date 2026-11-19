@@ -1,0 +1,391 @@
+// =============================================================================
+// BOARD - Notion-like kanban view for Bases
+// =============================================================================
+
+@use './variables' as *;
+@use './mixins' as *;
+@use './notion-colors' as *;
+
+$column-gap: 12px;
+$column-radius: 10px;
+$card-radius: 10px;
+
+.notional-board {
+	// Tint strength of the column color (calibrated on Notion boards)
+	--notional-board-column-alpha: 0.05;
+	--notional-board-card-alpha: 0;
+	--notional-board-text-alpha: 0.75;
+	// Value columns without a color
+	--notional-color-rgb: var(--mono-rgb-100);
+
+	overflow-x: auto;
+	user-select: none;
+
+	.theme-dark & {
+		--notional-board-column-alpha: 0.07;
+		--notional-board-card-alpha: 0.14;
+		--notional-board-text-alpha: 0.7;
+	}
+}
+
+// Content of the scroller: columns side by side. Scrolls with them, so the
+// selection rectangle and drop markers are positioned in it.
+.notional-board-canvas {
+	position: relative;
+	display: flex;
+	align-items: flex-start;
+	column-gap: $column-gap;
+	width: max-content;
+	min-width: 100%;
+	min-height: 240px;
+	padding: 4px var(--size-4-2) 24px;
+}
+
+// "Bases layout" tweak: the board runs to the right edge of the view, like the
+// timeline, the view's right inset moves into the canvas
+:where(body.notional-feature-tweak-bases-layout) {
+	.bases-view.notional-board-host {
+		padding-inline-end: 0;
+	}
+
+	.notional-board-canvas {
+		padding-inline: 0 calc(#{$padding-inline-mobile} + var(--size-4-2));
+
+		@include desktop {
+			padding-inline-end: calc(#{$padding-inline-desktop} + var(--size-4-2));
+		}
+	}
+}
+
+.notional-board-empty {
+	padding: var(--size-4-4) 0;
+	color: var(--text-muted);
+}
+
+// ─── Column ───────────────────────────────────────────────────────────────────
+
+.notional-board-column {
+	@include notion-color-rgb;
+
+	position: relative;
+	flex: none;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	width: var(--notional-board-column-width);
+	padding: 0 8px 8px;
+	border-radius: $column-radius;
+	background-color: rgba(var(--notional-color-rgb), var(--notional-board-column-alpha));
+	transition: box-shadow 0.12s, opacity 0.12s;
+
+	// Uncolored columns: neutral, a bit lighter than the colored tints
+	&:not([data-notion-color]) {
+		background-color: rgba(var(--mono-rgb-100), 0.025);
+	}
+
+	// Dark gray is near white: Notion keeps its column and cards almost neutral
+	.theme-dark &[data-notion-color='gray'] {
+		--notional-board-column-alpha: 0.03;
+		--notional-board-card-alpha: 0.055;
+	}
+
+	&.is-drop-target {
+		box-shadow: inset 0 0 0 2px rgba(var(--interactive-accent-rgb), 0.6);
+	}
+
+	&.is-dragging {
+		opacity: 0.4;
+	}
+}
+
+.notional-board-column-header {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	min-height: 40px;
+	padding-inline: 2px;
+	cursor: grab;
+
+	.notional-board-column-chip {
+		cursor: pointer;
+		font-size: var(--font-ui-small);
+	}
+}
+
+.notional-board-column-count {
+	font-size: var(--font-ui-small);
+	font-weight: 500;
+	color: rgba(var(--notional-color-rgb), var(--notional-board-text-alpha));
+
+	.notional-board-column:not([data-notion-color]) & {
+		color: var(--text-muted);
+	}
+}
+
+.notional-board-column-actions {
+	display: flex;
+	margin-inline-start: auto;
+	opacity: 0;
+	transition: opacity 0.12s;
+
+	.notional-board-column:hover & {
+		opacity: 1;
+	}
+
+	@media (hover: none) {
+		opacity: 1;
+	}
+}
+
+.notional-board-column-cards {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+
+	&:empty {
+		display: none;
+	}
+}
+
+.notional-board-new-card {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding: 6px 8px;
+	border-radius: 8px;
+	font-size: var(--font-ui-small);
+	color: rgba(var(--notional-color-rgb), var(--notional-board-text-alpha));
+	cursor: pointer;
+
+	.notional-board-column:not([data-notion-color]) & {
+		color: var(--text-muted);
+	}
+
+	svg {
+		width: 14px;
+		height: 14px;
+	}
+
+	&:hover {
+		background-color: rgba(var(--notional-color-rgb), 0.08);
+	}
+}
+
+// ─── Card ─────────────────────────────────────────────────────────────────────
+
+.notional-board-card {
+	overflow: hidden;
+	border-radius: $card-radius;
+	background-color: var(--background-primary);
+	box-shadow: 0 0 0 1px rgba(var(--mono-rgb-100), 0.06), 0 2px 4px rgba(var(--mono-rgb-100), 0.04);
+	cursor: pointer;
+	transition: background-color 0.1s;
+
+	&:hover {
+		background-color: color-mix(in srgb, var(--background-primary), var(--text-normal) 3%);
+	}
+
+	.theme-dark & {
+		background-color: rgba(var(--notional-color-rgb), var(--notional-board-card-alpha));
+		box-shadow: none;
+
+		&:hover {
+			background-color: rgba(var(--notional-color-rgb), calc(var(--notional-board-card-alpha) + 0.05));
+		}
+	}
+
+	.theme-dark .notional-board-column:not([data-notion-color]) & {
+		background-color: rgba(var(--mono-rgb-100), 0.05);
+
+		&:hover {
+			background-color: rgba(var(--mono-rgb-100), 0.08);
+		}
+	}
+
+	&.is-dragging {
+		opacity: 0.4;
+	}
+
+	&.is-copy {
+		opacity: 1;
+	}
+
+	&.is-selected {
+		box-shadow: 0 0 0 2px var(--interactive-accent);
+	}
+}
+
+.notional-board-card-cover {
+	aspect-ratio: calc(1 / var(--notional-board-image-ratio));
+	overflow: hidden;
+	border-bottom: 1px solid rgba(var(--mono-rgb-100), 0.06);
+
+	img {
+		display: block;
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		pointer-events: none;
+
+		.notional-board.is-contain & {
+			object-fit: contain;
+		}
+	}
+}
+
+.notional-board-card-body {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	padding: 10px 12px 12px;
+}
+
+.notional-board-card-title {
+	font-size: var(--font-ui-medium);
+	font-weight: 600;
+	line-height: 1.45;
+	color: var(--text-normal);
+	overflow-wrap: anywhere;
+
+	.notional-icon {
+		margin-inline-end: 6px;
+		vertical-align: -2px;
+	}
+}
+
+.notional-board-card-props {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 6px;
+	font-size: var(--font-ui-smaller);
+	color: var(--text-muted);
+}
+
+.notional-board-card-prop-group {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px;
+	max-width: 100%;
+
+	.notional-value-chip {
+		font-size: var(--font-ui-smaller);
+	}
+}
+
+.notional-board-card-prop {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.notional-board-prop-editable {
+	cursor: pointer;
+	border-radius: 4px;
+
+	&:empty {
+		display: none;
+	}
+}
+
+// ─── Drag ─────────────────────────────────────────────────────────────────────
+
+.notional-board-ghost-host {
+	position: fixed;
+	inset: 0;
+	z-index: var(--layer-dragged-item);
+	display: block;
+	overflow: visible;
+	padding: 0;
+	min-height: 0;
+	pointer-events: none;
+}
+
+.notional-board-ghost {
+	@include notion-color-rgb;
+
+	position: absolute;
+	top: 0;
+	left: 0;
+	pointer-events: none;
+	opacity: 0.95;
+	box-shadow: var(--shadow-l);
+
+	// Ghost of a column header: keeps the column tint
+	&.notional-board-column-header {
+		border-radius: $column-radius;
+		background-color: var(--background-primary);
+	}
+}
+
+.notional-board-ghost-host[data-notion-color] {
+	@include notion-color-rgb;
+}
+
+.notional-board-drop-indicator {
+	position: absolute;
+	top: 4px;
+	bottom: 24px;
+	width: 3px;
+	border-radius: 2px;
+	background-color: var(--interactive-accent);
+	transform: translateX(-50%);
+	pointer-events: none;
+}
+
+// Where a dragged card lands, between two cards
+.notional-board-drop-line {
+	position: absolute;
+	left: 8px;
+	right: 8px;
+	height: 3px;
+	border-radius: 2px;
+	background-color: var(--interactive-accent);
+	transform: translateY(-50%);
+	pointer-events: none;
+}
+
+// ─── Hidden columns ───────────────────────────────────────────────────────────
+
+.notional-board-hidden {
+	flex: none;
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	width: 220px;
+	padding-top: 8px;
+}
+
+.notional-board-hidden-title {
+	padding: 4px 8px 6px;
+	font-size: var(--font-ui-small);
+	color: var(--text-muted);
+}
+
+.notional-board-hidden-item {
+	@include notion-color-rgb;
+
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 4px 8px;
+	border-radius: 6px;
+	cursor: pointer;
+
+	&:hover {
+		background-color: var(--background-modifier-hover);
+	}
+
+	.notional-board-column-chip {
+		font-size: var(--font-ui-small);
+	}
+
+	.notional-board-column-count {
+		color: var(--text-muted);
+	}
+}
+
+body.notional-board-dragging,
+body.notional-board-dragging * {
+	cursor: grabbing !important;
+}
