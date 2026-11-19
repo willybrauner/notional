@@ -51,7 +51,7 @@ export function processRenderedValues(
 			?? app.vault.getAbstractFileByPath(sourcePath);
 		if (!(file instanceof TFile)) return;
 
-		const fm = app.metadataCache.getFileCache(file)?.frontmatter as Record<string, unknown> | undefined;
+		const fm = app.metadataCache.getFileCache(file)?.frontmatter;
 		if (!fm) return;
 
 		// Match displayed value to a FM key. Prefer seed-backed (known select); fall back to first match.

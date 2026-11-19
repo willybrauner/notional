@@ -32,7 +32,7 @@ export function readEntryDate(app: App, entry: BasesEntry, propId: BasesProperty
 	const prop = parsePropertyId(propId);
 
 	if (prop.type === 'note') {
-		const fm = app.metadataCache.getFileCache(entry.file)?.frontmatter as Record<string, unknown> | undefined;
+		const fm: Record<string, unknown> | undefined = app.metadataCache.getFileCache(entry.file)?.frontmatter;
 		const raw = fm?.[prop.name];
 		const date = parse(raw);
 		const str = typeof raw === 'string' ? raw : null;

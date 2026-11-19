@@ -102,6 +102,9 @@ function esbuildBaseConfig(prod: boolean): esbuild.BuildOptions {
     bundle: true,
     external: esbuildExternals,
     format: 'cjs',
+    // Emits import() as require(): Obsidian loads main.js as CommonJS, where
+    // only require() resolves Node builtins (media-drop/decodeHeicToPng.ts)
+    supported: { 'dynamic-import': false },
     target: 'es2018',
     logLevel: 'info',
     sourcemap: prod ? false : 'inline',

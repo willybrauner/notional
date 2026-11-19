@@ -18,8 +18,8 @@ export function isValidSelectNoteProp(app: App, prop: HTMLElement): boolean {
 	}
 	const propKey = prop.getAttribute('data-property-key') ?? '';
 	const activeFile = app.workspace.getActiveFile();
-	const fm = activeFile
-		? (app.metadataCache.getFileCache(activeFile)?.frontmatter as Record<string, unknown> | undefined)
+	const fm: Record<string, unknown> | null | undefined = activeFile
+		? app.metadataCache.getFileCache(activeFile)?.frontmatter
 		: null;
 	const fmValue = fm && propKey ? fm[propKey] : undefined;
 	if (Array.isArray(fmValue)) {

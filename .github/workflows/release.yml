@@ -10,6 +10,9 @@ on:
 
 permissions:
   contents: write
+  # Artifact attestations: signs the release files with the workflow identity
+  id-token: write
+  attestations: write
 
 jobs:
   release:
@@ -27,6 +30,12 @@ jobs:
       - name: Tag matches manifest.json
         run: test "$(node -p "require('./manifest.json').version")" = "$GITHUB_REF_NAME"
       - run: pnpm build
+      - uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: |
+            dist/main.js
+            dist/manifest.json
+            dist/styles.css
       - name: Draft the release
         env:
           GH_TOKEN: ${{ github.token }}

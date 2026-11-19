@@ -533,9 +533,9 @@ export class TimelineView extends BasesView implements HoverParent {
 			new Notice(`Sorted by "${ORDER_PROPERTY}" after "${this.startProp ? this.config.getDisplayName(this.startProp) : 'start'}". Remove it from the sort to go back.`);
 		}
 		try {
-			await Promise.all(files.map((file, i) => {
+			await Promise.all(files.flatMap((file, i) => {
 				const value = values[i] ?? null;
-				return value === null || value === readOrder(file) ? null : writeEntryOrder(this.app, file, value);
+				return value === null || value === readOrder(file) ? [] : [writeEntryOrder(this.app, file, value)];
 			}));
 		} finally {
 			this.release();

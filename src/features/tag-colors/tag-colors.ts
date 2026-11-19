@@ -48,7 +48,7 @@ export class TagColorsFeature extends Feature {
 	// Colors the tags of a window and keeps them colored
 	private attach(doc: Document): void {
 		if (this.windows.has(doc)) return;
-		const sheet = new (doc.win as Window & typeof globalThis).CSSStyleSheet();
+		const sheet = new (doc.win as Window & { CSSStyleSheet: typeof CSSStyleSheet }).CSSStyleSheet();
 		sheet.replaceSync(buildTagStylesheet(this.colors.map));
 		doc.adoptedStyleSheets = [...doc.adoptedStyleSheets, sheet];
 		const observer = new MutationObserver(mutations => this.onMutations(mutations));

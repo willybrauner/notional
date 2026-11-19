@@ -13,8 +13,8 @@ export function markNoteProperties(
 	colorMap: Record<string, string>,
 ): void {
 	const activeFile = app.workspace.getActiveFile();
-	const fm = activeFile
-		? (app.metadataCache.getFileCache(activeFile)?.frontmatter as Record<string, unknown> | undefined)
+	const fm: Record<string, unknown> | null | undefined = activeFile
+		? app.metadataCache.getFileCache(activeFile)?.frontmatter
 		: null;
 
 	container.querySelectorAll<HTMLElement>(`.${CLASSES.metadataProperty}[${ATTRS.propertyKey}]`).forEach(prop => {

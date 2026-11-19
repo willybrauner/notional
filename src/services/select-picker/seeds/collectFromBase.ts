@@ -15,7 +15,7 @@ export function collectFromBase(
 	const values = new Set<string>();
 	vault.getMarkdownFiles().forEach(file => {
 		if (folderPath && !file.path.startsWith(folderPath + '/')) return;
-		const fm = metadataCache.getFileCache(file)?.frontmatter as Record<string, unknown> | undefined;
+		const fm: Record<string, unknown> | undefined = metadataCache.getFileCache(file)?.frontmatter;
 		if (!fm) return;
 		const key = Object.keys(fm).find(k => k.toLowerCase() === fmKeyLower);
 		const val = key ? fm[key] : undefined;
