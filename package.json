@@ -1,7 +1,7 @@
 {
 	"name": "notionalize",
 	"private": true,
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "Notion-like pages and databases for Obsidian: folder pages, select chips with colors, icons, board and timeline views, side peek.",
 	"main": "dist/main.js",
 	"type": "module",
